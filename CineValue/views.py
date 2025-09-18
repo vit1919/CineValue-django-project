@@ -41,7 +41,6 @@ def search_result(request, id):
     budget_m = round(movie.budget/1000000)
     revenue_m = round(movie.revenue/1000000)
 
-
     kp = get_kp_api(request, tmdb_id)
 
     if isinstance(kp, dict) and 'error' in kp:
