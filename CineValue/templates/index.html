@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    CineValue
+{% endblock %}
+
+{% block content %}
+
+        <input autocomplete="off" autofocus name="movie_name" placeholder="Movie name" type="search">
+
+        <ul></ul> 
+
+    <script>
+       
+        const input = document.querySelector('input');
+
+    
+        input.addEventListener('input', async () => {
+        // Отправляем GET-запрос на своё /search?q=...
+        const response = await fetch('/search?q=' + encodeURIComponent(input.value));
+        const movies   = await response.json();
+
+        // Собираем HTML списка
+        let html = '';
+        movies.forEach(movie => {
+      
+            const safeTitle = movie.title
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+
+            // Если year есть → показываем, иначе «N/A»
+            const year = movie.year ?? 'N/A';
+
+            // Создаём ссылку на страницу результата
+            html += `<li>
+                    <a href="/search/${movie.id}/">
+                        ${safeTitle} (${year})
+                    </a>
+                    </li>`;
+        });
+
+        // Вставляем в <ul>
+        document.querySelector('ul').innerHTML = html;
+        });
+    </script>
+   
+{% endblock %}

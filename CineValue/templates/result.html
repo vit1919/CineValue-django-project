@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+{% block title %}{{ movie.title }} | CineValue{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="color:#e6edf3;background:#0d1117;">
+  <!-- Шапка: постер + основные сведения -->
+  <div class="row g-4">
+    <div class="col-12 col-md-3">
+      <img
+        src="{{ data_whatson.image|default_if_none:'' }}"
+        alt="{{ data_whatson.title|default:movie.title }}"
+        class="img-fluid rounded"
+        style="background:#161b22;border:1px solid #30363d;"
+      >
+    </div>
+
+    <div class="col-12 col-md-9">
+      <h1 class="h3 mb-2">{{ movie.title }},  {{ movie.year }}</h1>
+      {% if movie.title != movie.original_title %}
+        <p class="mb-2">Original title: {{ movie.original_title }}</p>
+      {% endif %}
+
+
+
+      {# Режиссёры: в API это объект/словарь — безопасно выведем через список, если есть #}
+      {% if data_whatson.directors %}
+        <p class="mb-2">
+          Directors:
+          {% if data_whatson.directors.items %}
+            {% for k,v in data_whatson.directors.items %}
+              <span class="badge rounded-pill" style="background:#21262d;border:1px solid #30363d;">{{ v }}</span>
+            {% endfor %}
+          {% else %}
+            {{ data_whatson.directors }}
+          {% endif %}
+        </p>
+      {% endif %}
+
+      <p class="mb-3" style="white-space:pre-line;">{{ movie.overview|default:"No overview sorry" }}</p>
+
+      <div class="d-flex flex-wrap gap-3">
+        <div>Budget: <strong>${{ budget_m|default:"N/A" }}M</strong></div>
+        <div>Revenue: <strong>${{ revenue_m|default:"N/A" }}M</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4" style="border-color:#30363d;">
+
+  <!-- Рейтинги по платформам -->
+  <div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="p-3 rounded" style="background:#161b22;border:1px solid #30363d;">
+        <div class="small text-muted">IMDb</div>
+        <div class="fs-4">
+          {{ data_whatson.imdb.users_rating|default:"–" }}
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="p-3 rounded" style="background:#161b22;border:1px solid #303d33;">
+        <div class="small text-muted">Letterboxd</div>
+        <div class="fs-4">
+          {{ data_whatson.letterboxd.users_rating|default:"–" }}
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="p-3 rounded" style="background:#161b22;border:1px solid #30363d;">
+        <div class="small text-muted">Metacritic</div>
+        <div class="fs-6">Critics: {{ data_whatson.metacritic.critics_rating|default:"–" }}</div>
+        <div class="fs-6">Users: {{ data_whatson.metacritic.users_rating|default:"–" }}</div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="p-3 rounded" style="background:#161b22;border:1px solid #303d33;">
+        <div class="small text-muted">Kinopoisk</div>
+        <div class="fs-4">
+          {{ kp.rating.kp|default:"–" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="p-3 rounded" style="background:#161b22;border:1px solid #30363d;">
+        <div class="small text-muted">Rotten Tomatoes</div>
+        <div class="fs-6">Critics: {{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</div>
+        <div class="fs-6">Users: {{ data_whatson.rotten_tomatoes.users_rating|default:"–" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4" style="border-color:#30363d;">
+
+  <!-- Кнопки-переключатели (collapse) для жанров, стран и трейлера -->
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-sm" style="background:#21262d;border:1px solid #30363d;color:#e6edf3;"
+            type="button" data-bs-toggle="collapse" data-bs-target="#genresBox">
+      Жанры
+    </button>
+    <button class="btn btn-sm" style="background:#21262d;border:1px solid #30363d;color:#e6edf3;"
+            type="button" data-bs-toggle="collapse" data-bs-target="#countriesBox">
+      Страны
+    </button>
+    <button class="btn btn-sm" style="background:#238636;border:1px solid #2ea043;color:#fff;"
+            type="button" data-bs-toggle="collapse" data-bs-target="#trailerBox">
+      Трейлер
+    </button>
+  </div>
+
+  <!-- Жанры -->
+  <div id="genresBox" class="collapse">
+    <div class="p-3 rounded mb-3" style="background:#161b22;border:1px solid #30363d;">
+      {% if data_whatson.genres %}
+        {% if data_whatson.genres.items %}
+          {% for k,v in data_whatson.genres.items %}
+            <span class="badge me-2 mb-2" style="background:#30363d;color:#e6edf3;">{{ v }}</span>
+          {% endfor %}
+        {% else %}
+          {{ data_whatson.genres }}
+        {% endif %}
+      {% else %}
+        N/A
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Страны (поля могут отсутствовать в ответе) -->
+  <div id="countriesBox" class="collapse">
+    <div class="p-3 rounded mb-3" style="background:#161b22;border:1px solid #30363d;">
+      {% with c1=data_whatson.countries c2=data_whatson.production_countries c3=data_whatson.origin_country %}
+        {% if c1 %}
+          {{ c1 }}
+        {% elif c2 %}
+          {% for c in c2 %}<span class="badge me-2 mb-2" style="background:#30363d;color:#e6edf3;">{{ c }}</span>{% endfor %}
+        {% elif c3 %}
+          {% for c in c3 %}<span class="badge me-2 mb-2" style="background:#30363d;color:#e6edf3;">{{ c }}</span>{% endfor %}
+        {% else %}
+          N/A
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <!-- Трейлер -->
+  <!-- <div id="trailerBox" class="collapse">
+    <div class="p-3 rounded" style="background:#161b22;border:1px solid #30363d;">
+      {% if data_whatson.trailer %}
+        <div id="trailerMount"></div>
+        <noscript><a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener">Открыть трейлер</a></noscript>
+      {% else %}
+        Трейлер недоступен
+      {% endif %}
+    </div>
+  </div>
+</div> -->
+
+<!-- {% if data_whatson.trailer %}
+<script>
+  // Преобразуем известные форматы YouTube в embed, иначе просто ссылка
+  (function() {
+    const url = "{{ data_whatson.trailer|escapejs }}";
+    const mount = document.getElementById('trailerMount');
+    if (!mount || !url) return;
+
+    // Пытаемся выделить ID ролика формата watch?v=XXXX
+    const yt = url.match(/(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([\\w-]{6,})/i);
+    if (yt && yt[21]) {
+      const embed = "https://www.youtube.com/embed/" + yt[21];
+      mount.innerHTML = '<div class="ratio ratio-16x9"><iframe src="'+embed+'" title="Trailer" allowfullscreen></iframe></div>';
+    } else {
+      mount.innerHTML = '<a class="btn btn-outline-light" href="'+url+'" target="_blank" rel="noopener">Открыть трейлер</a>';
+    }
+  })();
+</script>
+{% endif %} -->
+{% endblock %}
+
