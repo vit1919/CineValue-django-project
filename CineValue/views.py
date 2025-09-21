@@ -46,10 +46,8 @@ def search_result(request, id):
     if isinstance(kp, dict) and 'error' in kp:
         return HttpResponseServerError(kp['error'])
 
-
-
     #kp = None
-
+    
     to_template = {
             'movie':movie,
             'data_whatson':data_whatson,

@@ -1,14 +1,29 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block title %}
     CineValue
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
+{% endblock %}
+
 {% block content %}
-
-        <input autocomplete="off" autofocus name="movie_name" placeholder="Movie name" type="search">
-
-        <ul></ul> 
+<div class="page">
+  <div class="search-wrap" role="search">
+    <input
+      class="search-input"
+      autocomplete="off"
+      autofocus
+      name="movie_name"
+      placeholder="Movie name"
+      type="search"
+      aria-label="Search movies"
+    >
+    <ul class="results" role="listbox"></ul>
+  </div>
+</div>
 
     <script>
        
@@ -29,10 +44,10 @@
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;');
 
-            // Если year есть → показываем, иначе «N/A»
+            
             const year = movie.year ?? 'N/A';
 
-            // Создаём ссылку на страницу результата
+            
             html += `<li>
                     <a href="/search/${movie.id}/">
                         ${safeTitle} (${year})
@@ -40,7 +55,7 @@
                     </li>`;
         });
 
-        // Вставляем в <ul>
+
         document.querySelector('ul').innerHTML = html;
         });
     </script>
