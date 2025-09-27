@@ -25,39 +25,28 @@
   </div>
 </div>
 
-    <script>
-       
-        const input = document.querySelector('input');
+      <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const input = document.querySelector('.search-input'); // или: document.getElementById('movie-search')
+        const list  = document.querySelector('.results');
+        if (!input || !list) return;
 
-    
         input.addEventListener('input', async () => {
-        // Отправляем GET-запрос на своё /search?q=...
-        const response = await fetch('/search?q=' + encodeURIComponent(input.value));
-        const movies   = await response.json();
+          const q = input.value.trim();
+          if (!q) { list.innerHTML = ''; return; }
 
-        // Собираем HTML списка
-        let html = '';
-        movies.forEach(movie => {
-      
-            const safeTitle = movie.title
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;');
+          const res = await fetch('/search/?q=' + encodeURIComponent(q)); // trailing slash
+          const movies = await res.json();
 
-            
-            const year = movie.year ?? 'N/A';
-
-            
-            html += `<li>
-                    <a href="/search/${movie.id}/">
-                        ${safeTitle} (${year})
-                    </a>
-                    </li>`;
+          let html = '';
+          movies.forEach(m => {
+            const safe = m.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            html += `<li><a href="/search/${m.id}/">${safe} (${m.year ?? 'N/A'})</a></li>`;
+          });
+          list.innerHTML = html;
         });
+      });
+      </script>
 
-
-        document.querySelector('ul').innerHTML = html;
-        });
-    </script>
    
 {% endblock %}

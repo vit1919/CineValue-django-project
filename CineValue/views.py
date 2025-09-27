@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.core.cache import cache
 from django.db.models import Q
-
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib import messages
+from .forms import SignUpForm
 
 from movie import settings
 from .models import Movie
@@ -58,6 +60,20 @@ def search_result(request, id):
 
     return render(request, 'result.html', to_template)
 
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  
+            messages.success(request, 'Registered!')
+            return redirect('/')
+    else:
+        form = SignUpForm()
+    
+    return render(request, 'signup.html', {'form': form})
 
 
 def get_kp_api(request, tmdb_id): 

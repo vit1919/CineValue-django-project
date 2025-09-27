@@ -6,11 +6,10 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
 <style>
-  /*для полного экрана */
+
   body { background: #0d1117 !important; }
   main.container { max-width: none !important; padding: 0 !important; }
   
-  /* Цвета рейтингов */
   .rating-imdb { background: #deb522; color: #000; }
   .rating-letterboxd { background: #00e054; color: #000; }
   .rating-rt { background: #a94242; color: #fff; }
@@ -49,12 +48,10 @@
             {% if data_whatson.directors %}
               <p class="mb-0">
                 <strong>Directors:</strong>
-                {% if data_whatson.directors.items %}
-                  {% for k,v in data_whatson.directors.items %}
-                    <span class="badge me-2" style="background:#21262d; border:1px solid #30363d;">{{ v }}</span>
-                  {% endfor %}
+                {% if data_whatson.directors %}
+                  {{ data_whatson.directors|join:", " }}
                 {% else %}
-                  {{ data_whatson.directors }}
+                  N/A
                 {% endif %}
               </p>
             {% endif %}
@@ -83,7 +80,9 @@
               <!-- IMDb -->
               <div class="col-6 col-sm-4 col-lg-2">
                 <div class="text-center p-3 rounded rating-imdb">
-                  <div class="fw-bold small">IMDb</div>
+                   <a href="{{ data_whatson.imdb.url}}" style="text-decoration: none; color: inherit;">
+                    <div class="fw-bold small">IMDb</div>
+                  </a>
                   <div class="fs-4 fw-bold">{{ data_whatson.imdb.users_rating|default:"–" }}</div>
                 </div>
               </div>
@@ -102,7 +101,9 @@
               <!-- Rotten Tomatoes -->
               <div class="col-6 col-sm-4 col-lg-2">
                 <div class="text-center p-2 rounded rating-rt">
-                  <div class="fw-bold small">Rotten Tomatoes</div>
+                  <a href="{{ data_whatson.rotten_tomatoes.url}}" style="text-decoration: none; color: inherit;">
+                    <div class="fw-bold small">Rotten Tomatoes</div>
+                  </a>
                   <div class="small">Critics: <strong>{{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</strong></div>
                   <div class="small">Users: <strong>{{ data_whatson.rotten_tomatoes.users_rating|default:"–" }}</strong></div>
                 </div>
@@ -119,7 +120,10 @@
               <!-- Metacritic -->
               <div class="col-6 col-sm-4 col-lg-2">
                 <div class="text-center p-2 rounded rating-meta">
-                  <div class="fw-bold small">Metacritic</div>
+                  <a href="{{ data_whatson.metacritic.url}}" style="text-decoration: none; color: inherit;">
+                    <div class="fw-bold small">Metacritic</div>
+                  </a>
+
                   <div class="small">Critics: <strong>{{ data_whatson.metacritic.critics_rating|default:"–" }}</strong></div>
                   <div class="small">Users: <strong>{{ data_whatson.metacritic.users_rating|default:"–" }}</strong></div>
                 </div>
