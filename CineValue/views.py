@@ -6,9 +6,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib import messages
 from .forms import SignUpForm
-
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 from movie import settings
-from .models import Movie
+from .models import Movie, WatchList
 from django.http import JsonResponse
 import requests
 
@@ -75,6 +76,22 @@ def signup(request):
     
     return render(request, 'signup.html', {'form': form})
 
+@login_required
+@require_POST
+def to_watchlist(request, id):
+
+    movie = get_object_or_404(Movie, id=id)
+    obj, created = WatchList.objects.get_or_create(user=request.user, movie=movie)
+
+    return redirect('search_result', id=movie.id)
+
+
+@login_required
+def watchlist(request):
+    watchlist = WatchList.objects.filter(user=request.user).select_related('movie').order_by('-added_at')
+    
+    return render(request, 'watchlist.html', {'watchlist': watchlist})
+
 
 def get_kp_api(request, tmdb_id): 
 
@@ -115,7 +132,8 @@ def get_kp_api(request, tmdb_id):
         return {'error': f'Ошибка запроса к kinopoisk.dev: {e}'}
 
     
-
+# def watchlist(request):
+#     if 
     
 def get_whatson_api(request, tmdb_id):
 

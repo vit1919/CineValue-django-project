@@ -1,6 +1,9 @@
 from django.db import models
 
+from django.conf import settings
+
 class Movie(models.Model):
+    
     title = models.CharField(max_length=500)
     original_title = models.CharField(max_length=500, null=True, blank=True)
     original_language = models.CharField(max_length=15, null=True, blank=True)
@@ -38,3 +41,31 @@ class Movie(models.Model):
         verbose_name_plural = 'Movies'
 
 
+class WatchList(models.Model):
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='watchlist_items',
+        db_index=True,
+    )
+
+    movie = models.ForeignKey(
+        Movie,
+        on_delete=models.CASCADE,
+        related_name='in_watchlists',
+        db_index=True,
+    )
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'movie'],
+                name='unique_user_movie_watchlist'
+            )
+        ]
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f'{self.user} → {self.movie}'

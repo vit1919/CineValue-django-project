@@ -27,7 +27,7 @@
 
       <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const input = document.querySelector('.search-input'); // или: document.getElementById('movie-search')
+        const input = document.querySelector('.search-input'); 
         const list  = document.querySelector('.results');
         if (!input || !list) return;
 
@@ -35,7 +35,7 @@
           const q = input.value.trim();
           if (!q) { list.innerHTML = ''; return; }
 
-          const res = await fetch('/search/?q=' + encodeURIComponent(q)); // trailing slash
+          const res = await fetch('/search/?q=' + encodeURIComponent(q)); 
           const movies = await res.json();
 
           let html = '';

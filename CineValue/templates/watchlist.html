@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    CineValue
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% for wl in watchlist %}
+    <div>
+        <h3>{{ wl.movie.title }}</h3>
+        <p>Добавлено: {{ wl.added_at|date:"d.m.Y" }}</p>
+    </div>
+{% endfor %}
+
+
+   
+{% endblock %}

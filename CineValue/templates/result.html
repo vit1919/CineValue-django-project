@@ -32,6 +32,12 @@
             style="background:#161b22; border:1px solid #30363d; max-height: 600px; width: 100%;"
           >
         </div>
+
+        <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
+          {% csrf_token %}
+          <button type="submit">Add to watchlist</button>
+        </form>
+
       </div>
 
       <!-- Детали фильма -->
@@ -63,7 +69,7 @@
               {{ movie.overview|default:"No overview available" }}
             </p>
             
-            <!-- Жанры сразу после описания -->
+            
             <p class="mb-0">
               <strong>Genres:</strong>
               {% if data_whatson.genres %}
@@ -154,4 +160,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
