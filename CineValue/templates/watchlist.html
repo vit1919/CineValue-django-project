@@ -14,7 +14,12 @@
 {% for wl in watchlist %}
     <div>
         <h3>{{ wl.movie.title }}</h3>
-        <p>Добавлено: {{ wl.added_at|date:"d.m.Y" }}</p>
+        <p>Added: {{ wl.added_at|date:"d.m.Y" }}</p>
+
+        <form method="post" action="{% url 'remove_watchlist_movie' id=wl.movie.id %}">
+          {% csrf_token %}
+          <button type="submit">Remove</button>
+        </form>
     </div>
 {% endfor %}
 

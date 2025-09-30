@@ -15,5 +15,6 @@ urlpatterns = [
     
     path('watchlist/', views.watchlist, name='watchlist'),
     path('search/<int:id>/to_watchlist', views.to_watchlist, name='to_watchlist'),
+    path('watchlist/<int:id>/remove_watchlist_movie', views.remove_watchlist_movie, name='remove_watchlist_movie'),
     
 ]

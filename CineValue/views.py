@@ -93,6 +93,16 @@ def watchlist(request):
     return render(request, 'watchlist.html', {'watchlist': watchlist})
 
 
+@login_required
+@require_POST
+def remove_watchlist_movie(request, id):
+
+    movie = get_object_or_404(Movie, id=id)
+    WatchList.objects.filter(user=request.user, movie=movie).delete()
+
+    return redirect('watchlist')
+
+
 def get_kp_api(request, tmdb_id): 
 
     cache_key = f"kp_data_{tmdb_id}"
