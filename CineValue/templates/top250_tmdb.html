@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    CineValue
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% for movie in top250 %}
+    <div>
+        <h3>{{ movie.title }} {{ movie.vote_average }}</h3>
+        
+        
+        
+
+
+    </div>
+{% endfor %}
+
+
+   
+{% endblock %}

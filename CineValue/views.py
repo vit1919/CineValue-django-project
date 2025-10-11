@@ -50,6 +50,16 @@ def search_result(request, id):
         return HttpResponseServerError(kp['error'])
 
     #kp = None
+
+    if request.user.is_authenticated:
+        is_in_watchlist = WatchList.objects.filter(
+            user=request.user, 
+            movie=movie
+        ).exists()
+    else:
+        is_in_watchlist = False
+    
+
     
     to_template = {
             'movie':movie,
@@ -57,6 +67,8 @@ def search_result(request, id):
             'kp':kp,
             'budget_m':budget_m,
             'revenue_m':revenue_m,
+            'is_in_watchlist':is_in_watchlist,
+            
                    }
 
     return render(request, 'result.html', to_template)
@@ -101,6 +113,24 @@ def remove_watchlist_movie(request, id):
     WatchList.objects.filter(user=request.user, movie=movie).delete()
 
     return redirect('watchlist')
+
+
+@login_required
+@require_POST
+def remove_watchlist_movie_inresult(request, id):
+
+    movie = get_object_or_404(Movie, id=id)
+    WatchList.objects.filter(user=request.user, movie=movie).delete()
+
+    return redirect('search_result', id=movie.id)
+
+
+@login_required
+def top250_tmdb(request):
+
+    top250 = Movie.objects.filter(vote_count__gte=1000).order_by('-vote_average')[:250]
+    return render(request, 'top250_tmdb.html', {'top250': top250})
+
 
 
 def get_kp_api(request, tmdb_id): 

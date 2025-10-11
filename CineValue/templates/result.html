@@ -24,7 +24,8 @@
     <div class="row g-4 h-100">
       
       <div class="col-12 col-md-3">
-        <div class="h-100 d-flex align-items-start">
+        <!-- Постер -->
+        <div class="d-flex align-items-start mb-3">
           <img
             src="{{ data_whatson.image|default_if_none:'' }}"
             alt="{{ data_whatson.title|default:movie.title }}"
@@ -33,18 +34,34 @@
           >
         </div>
 
-        <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
-          {% csrf_token %}
-          <button type="submit">Add to watchlist</button>
-        </form>
+        <!-- Кнопка закладки -->
+        {% if user.is_authenticated %}
+          {% if is_in_watchlist %}
+            <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
+              {% csrf_token %}
+              <button type="submit" style="border: none; background: none; cursor: pointer;">
+                <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" 
+                  width="32" height="32" alt="Remove from watchlist">
+              </button>
+            </form>
+          {% else %}
+            <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
+              {% csrf_token %}
+              <button type="submit" style="border: none; background: none; cursor: pointer;">
+                <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" 
+                  width="32" height="32" alt="Add to watchlist">
+              </button>
+            </form>
+          {% endif %}
+        {% endif %}
 
       </div>
 
-      <!-- Детали фильма -->
+      
       <div class="col-12 col-md-9">
         <div class="h-100 d-flex flex-column">
           
-          <!-- Заголовок и режиссёры -->
+          
           <div class="mb-3">
             <h1 class="h2 mb-3">{{ movie.title }} ({{ movie.year }})</h1>
             {% if movie.title != movie.original_title %}
@@ -63,7 +80,7 @@
             {% endif %}
           </div>
 
-          <!-- Описание -->
+          
           <div class="mb-3">
             <p class="mb-2" style="white-space:pre-line; line-height: 1.6; font-size: 1.1rem;">
               {{ movie.overview|default:"No overview available" }}
