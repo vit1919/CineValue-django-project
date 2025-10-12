@@ -34,26 +34,38 @@
           >
         </div>
 
-        <!-- Кнопка закладки -->
-        {% if user.is_authenticated %}
-          {% if is_in_watchlist %}
-            <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
-              {% csrf_token %}
-              <button type="submit" style="border: none; background: none; cursor: pointer;">
-                <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" 
-                  width="32" height="32" alt="Remove from watchlist">
-              </button>
-            </form>
-          {% else %}
-            <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
-              {% csrf_token %}
-              <button type="submit" style="border: none; background: none; cursor: pointer;">
-                <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" 
-                  width="32" height="32" alt="Add to watchlist">
-              </button>
-            </form>
+        <!-- bookmark   trailer -->
+        <div class="d-flex gap-3 align-items-center">
+          {% if user.is_authenticated %}
+            {% if is_in_watchlist %}
+              <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
+                {% csrf_token %}
+                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
+                  <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" 
+                    width="32" height="32" alt="Remove from watchlist">
+                    
+                </button>
+              </form>
+
+            {% else %}
+              <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
+                {% csrf_token %}
+                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
+                  <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" 
+                    width="32" height="32" alt="Add to watchlist">
+                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                </button>
+              </form>
+            {% endif %}
           {% endif %}
-        {% endif %}
+
+          {% if data_whatson.trailer %}
+            <a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener noreferrer">
+              <img src="{% static 'CineValue/images/icons/trailer.svg' %}" 
+                width="32" height="32" alt="Watch trailer">
+            </a>
+          {% endif %}
+        </div>
 
       </div>
 

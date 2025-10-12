@@ -93,7 +93,11 @@ def signup(request):
 def to_watchlist(request, id):
 
     movie = get_object_or_404(Movie, id=id)
+    poster_url = request.POST.get('image')
     obj, created = WatchList.objects.get_or_create(user=request.user, movie=movie)
+    if created:
+        obj.image_url = poster_url
+        obj.save()
 
     return redirect('search_result', id=movie.id)
 
