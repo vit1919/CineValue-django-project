@@ -59,6 +59,32 @@
             {% endif %}
           {% endif %}
 
+
+          {% if user.is_authenticated %}
+            {% if is_in_liked %}
+              <form method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
+                {% csrf_token %}
+                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
+                  <img src="{% static 'CineValue/images/icons/heart_liked.svg' %}" 
+                    width="32" height="32" alt="Remove from liked">
+                    
+                </button>
+              </form>
+
+            {% else %}
+              <form method="post" action="{% url 'like' id=movie.id %}">
+                {% csrf_token %}
+                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
+                  <img src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" 
+                    width="32" height="32" alt="Add to liked">
+                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+
+
+
           {% if data_whatson.trailer %}
             <a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener noreferrer">
               <img src="{% static 'CineValue/images/icons/trailer.svg' %}" 

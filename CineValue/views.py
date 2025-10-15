@@ -9,7 +9,7 @@ from .forms import SignUpForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from movie import settings
-from .models import Movie, WatchList
+from .models import Liked, Movie, WatchList
 from django.http import JsonResponse
 import requests
 
@@ -41,8 +41,8 @@ def search_result(request, id):
     # movie.budget = movie.budget/1000000
     # movie.revenue = round(movie.revenue/1000000)
 
-    budget_m = round(movie.budget/1000000)
-    revenue_m = round(movie.revenue/1000000)
+    budget_m = round(movie.budget / 1000000) if movie.budget else 0
+    revenue_m = round(movie.revenue / 1000000) if movie.revenue else 0
 
     kp = get_kp_api(request, tmdb_id)
 
@@ -59,8 +59,14 @@ def search_result(request, id):
     else:
         is_in_watchlist = False
     
+    if request.user.is_authenticated:
+        is_in_liked = Liked.objects.filter(
+            user=request.user,
+            movie=movie
+        ).exists()
+    else:
+        is_in_liked = False
 
-    
     to_template = {
             'movie':movie,
             'data_whatson':data_whatson,
@@ -68,8 +74,8 @@ def search_result(request, id):
             'budget_m':budget_m,
             'revenue_m':revenue_m,
             'is_in_watchlist':is_in_watchlist,
-            
-                   }
+            'is_in_liked': is_in_liked,
+        }
 
     return render(request, 'result.html', to_template)
 
@@ -100,6 +106,32 @@ def to_watchlist(request, id):
         obj.save()
 
     return redirect('search_result', id=movie.id)
+
+@login_required
+@require_POST
+def like(request, id):
+
+    movie = get_object_or_404(Movie, id=id)
+    poster_url = request.POST.get('image')
+    obj, created = Liked.objects.get_or_create(user=request.user, movie=movie)
+    if created:
+        obj.image_url = poster_url
+        obj.save()
+
+    return redirect('search_result', id=movie.id)
+
+
+
+@login_required
+@require_POST
+def remove_liked_movie(request, id):
+
+    movie = get_object_or_404(Movie, id=id)
+    Liked.objects.filter(user=request.user, movie=movie).delete()
+
+    return redirect('search_result', id=movie.id)
+
+
 
 
 @login_required

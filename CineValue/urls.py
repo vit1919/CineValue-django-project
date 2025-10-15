@@ -20,6 +20,10 @@ urlpatterns = [
     path('top250_tmdb/', views.top250_tmdb, name='top250_tmdb'),
     path('search/<int:id>/remove_watchlist_movie_inresult', views.remove_watchlist_movie_inresult, name='remove_watchlist_movie_inresult'),
 
+ 
+    path('search/<int:id>/like', views.like, name='like'),
+    path('search/<int:id>/remove_liked_movie', views.remove_liked_movie, name='remove_liked_movie'),
+
 
     
 ]
