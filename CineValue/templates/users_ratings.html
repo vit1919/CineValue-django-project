@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    My Ratings | CineValue
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
+<style>
+  body { background: #0d1117; color: #e6edf3; }
+  .ratings-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+  .ratings-header { margin-bottom: 2rem; }
+  .ratings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  .rating-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .rating-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  }
+  .rating-poster {
+    width: 100%;
+    height: 375px;
+    object-fit: cover;
+    background: #0d1117;
+  }
+  .rating-info {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .rating-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #58a6ff;
+    text-decoration: none;
+  }
+  .rating-title:hover {
+    text-decoration: underline;
+  }
+  .rating-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #8b949e;
+    font-size: 0.9rem;
+  }
+  .rating-badge {
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #f1c40f;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+  }
+  .rating-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .rating-actions a {
+    flex: 1;
+    text-align: center;
+    background: #238636;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+    font-weight: 500;
+  }
+  .rating-actions a:hover {
+    background: #1f6f2e;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #8b949e;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ratings-container">
+  <div class="ratings-header">
+    <h1>My ratings</h1>
+    <p style="color: #8b949e;">{{ users_ratings|length }} movie{{ users_ratings|length|pluralize }}</p>
+  </div>
+
+  {% if users_ratings %}
+    <div class="ratings-grid">
+      {% for rating in users_ratings %}
+        <div class="rating-card">
+          <a href="{% url 'search_result' id=rating.movie.id %}">
+            <img
+              class="rating-poster"
+              src="{{ rating.image_url|default:'https://via.placeholder.com/250x375?text=No+Poster' }}"
+              alt="{{ rating.movie.title }}"
+            >
+          </a>
+          <div class="rating-info">
+            <a href="{% url 'search_result' id=rating.movie.id %}" class="rating-title">
+              {{ rating.movie.title }}
+            </a>
+            <div class="rating-meta">
+              <span>Rated: {{ rating.rated_at|date:"d M Y" }}</span>
+              <span class="rating-badge">{{ rating.rating }}/10</span>
+            </div>
+            <div class="rating-actions">
+              <a href="{% url 'search_result' id=rating.movie.id %}">Update rating</a>
+              <form method="post" action="{% url 'remove_rating' id=rating.movie.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100" style="background:#da3633; border:1px solid #f85149;">
+                  Remove
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h2>No ratings yet</h2>
+      <p>Rate a movie to see it here.</p>
+      <a href="{% url 'index' %}" style="color: #58a6ff;">Browse movies</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

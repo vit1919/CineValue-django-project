@@ -84,12 +84,60 @@
           {% endif %}
 
 
+          {% if user.is_authenticated %}
+            <button type="submit" data-bs-toggle="modal" data-bs-target="#ratingModal" style="border: none; background: none; cursor: pointer; padding: 0;">
+              <img src="{% static 'CineValue/images/icons/' %}{% if is_rated %}rated.svg{% else %}unrated.svg{% endif %}" 
+                width="32" height="32" alt="{% if is_rated %}Rated{% else %}Rate{% endif %}">
+              <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+            </button>
 
-          {% if data_whatson.trailer %}
-            <a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener noreferrer">
-              <img src="{% static 'CineValue/images/icons/trailer.svg' %}" 
-                width="32" height="32" alt="Watch trailer">
-            </a>
+            <!-- Модальное окно для оценки -->
+            <div class="modal fade" id="ratingModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: #161b22; color: #e6edf3; border: 1px solid #30363d;">
+                  <div class="modal-header" style="border-bottom: 1px solid #30363d;">
+                    <h5 class="modal-title">Rate</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form method="post" action="{% url 'rate_movie' id=movie.id %}" id="ratingForm">
+                      {% csrf_token %}
+                      <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                      <div class="text-center mb-3">
+                        <h4 style="color: #58a6ff;">{{ movie.title }}</h4>
+                      </div>
+                      <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+                        {% for i in rating_range %}
+                          <button 
+                            type="button"
+                            class="btn rating-btn"
+                            data-rating="{{ i }}"
+                            style="
+                              background: #21262d;
+                              color: #deb522;
+                              border: 1px solid #30363d;
+                              font-weight: 700;
+                              border-radius: 8px;
+                              width: 40px;
+                              height: 40px;
+                            "
+                          >
+                            {{ i }}
+                          </button>
+                        {% endfor %}
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {% if data_whatson.trailer %}
+              <a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener noreferrer">
+                <img src="{% static 'CineValue/images/icons/trailer.svg' %}" 
+                  width="32" height="32" alt="Watch trailer">
+              </a>
+            {% endif %}
           {% endif %}
         </div>
 
@@ -215,5 +263,109 @@
     </div>
   </div>
 </div>
+
+<script>
+function getCsrfToken() {
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'csrftoken') return value;
+  }
+  return '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('#ratingForm');
+  const modal = document.getElementById('ratingModal');
+  const ratingIcon = document.querySelector('button[data-bs-target="#ratingModal"] img');
+  
+  if (form) {
+    // Добавляем обработчик на все кнопки рейтинга
+    const ratingButtons = form.querySelectorAll('.rating-btn');
+    
+    ratingButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const ratingValue = this.getAttribute('data-rating');
+        
+        console.log('=== CLIENT DEBUG ===');
+        console.log('Rating:', ratingValue);
+        console.log('Image:', form.querySelector('input[name="image"]').value);
+        console.log('CSRF:', getCsrfToken());
+        
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        
+        const formData = new FormData(form);
+        formData.set('rating', ratingValue); // Явно устанавливаем rating
+        
+        // Логируем все данные FormData
+        console.log('FormData entries:');
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: formData
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            return response.text().then(text => {
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Response data:', data);
+          if (data.success) {
+            if (ratingIcon) {
+              ratingIcon.src = "{% static 'CineValue/images/icons/rated.svg' %}";
+              ratingIcon.alt = "Rated: " + ratingValue;
+            }
+            
+            showNotification(data.message + ' Rating: ' + ratingValue, 'success');
+            
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            if (modalInstance) {
+              modalInstance.hide();
+            }
+          } else if (data.error) {
+            showNotification(data.error, 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Failed to save rating: ' + error.message, 'error');
+        })
+        .finally(() => {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+      });
+    });
+  }
+  
+  function showNotification(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 3000);
+  }
+});
+</script>
 
 {% endblock %}
