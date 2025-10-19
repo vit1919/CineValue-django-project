@@ -10,20 +10,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="page">
-  <div class="search-wrap" role="search">
-    <input
-      class="search-input"
-      autocomplete="off"
-      autofocus
-      name="movie_name"
-      placeholder="Movie name"
-      type="search"
-      aria-label="Search movies"
-    >
-    <ul class="results" role="listbox"></ul>
-  </div>
-</div>
+<form action="/search_result_real" method="get" role="search">
+  <input
+    class="search-input"
+    autocomplete="off"
+    autofocus
+    name="movie_name"
+    placeholder="Movie name"
+    type="search"
+    aria-label="Search movies"
+  >
+  <ul class="results" role="listbox"></ul>
+</form>
+
 
       <script>
       document.addEventListener('DOMContentLoaded', () => {

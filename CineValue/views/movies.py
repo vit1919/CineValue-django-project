@@ -69,6 +69,23 @@ def search_result(request, id):
     }
     return render(request, 'result.html', context)
 
+def search_result_real(request):
+
+    movie = request.GET.get('movie_name', '').strip()
+    if not movie:
+        movies = []
+    else:
+        result = (
+            Movie.objects.filter(title__icontains=movie)
+            .order_by('-popularity', 'title')[:10]
+        )
+        movies = list(result.values('id', 'title', 'year'))
+
+    return render(request, 'real_result.html', {'search_results': movies})
+
+  
+
+
 
 def top250_tmdb(request):
     top250 = (

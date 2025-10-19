@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Search results | CineValue{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
+<style>
+  .search-results {
+    background: linear-gradient(145deg, #0d1117, #161b22);
+    border-radius: 18px;
+    padding: 32px;
+    color: #e6edf3;
+    box-shadow: 0 24px 48px rgba(1, 4, 9, 0.45);
+  }
+  .results-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    border-bottom: 1px solid rgba(230, 237, 243, 0.08);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+  }
+  .results-header h1 {
+    font-size: clamp(1.5rem, 2vw + 1rem, 2.4rem);
+    margin: 0;
+    letter-spacing: 0.6px;
+  }
+  .results-header .badge {
+    background: rgba(88, 166, 255, 0.16);
+    color: #58a6ff;
+    border: 1px solid rgba(88, 166, 255, 0.32);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+  }
+  .results-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .results-item a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: rgba(22, 27, 34, 0.9);
+    border: 1px solid rgba(48, 54, 61, 0.7);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+  .results-item a:hover {
+    transform: translateY(-2px);
+    border-color: rgba(88, 166, 255, 0.7);
+    background: rgba(13, 17, 23, 0.95);
+  }
+  .movie-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .movie-year {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+  .empty-state {
+    margin: 0;
+    font-size: 1.05rem;
+    opacity: 0.75;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="search-results">
+  <div class="results-header">
+    <h1>Search results</h1>
+    {% if search_results %}
+      <span class="badge">{{ search_results|length }} found</span>
+    {% endif %}
+  </div>
+
+  {% if search_results %}
+    <ul class="results-list">
+      {% for movie in search_results %}
+        <li class="results-item">
+          <a href="{% url 'search_result' movie.id %}">
+            <span class="movie-title">{{ movie.title }}</span>
+            <span class="movie-year">
+              {% if movie.year %}({{ movie.year }}){% else %}({{ "N/A" }}){% endif %}
+            </span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty-state">Did not found movie</p>
+  {% endif %}
+</section>
+{% endblock %}
