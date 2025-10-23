@@ -43,10 +43,12 @@ def search_result(request, id):
             user=request.user,
             movie=movie,
         ).exists()
+        
         is_in_liked = Liked.objects.filter(
             user=request.user,
             movie=movie,
         ).exists()
+
         is_rated = Rating.objects.filter(
             user=request.user,
             movie=movie,

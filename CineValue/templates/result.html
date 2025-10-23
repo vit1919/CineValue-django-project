@@ -59,25 +59,26 @@
             {% endif %}
           {% endif %}
 
-
+          <!-- Лайки -->
           {% if user.is_authenticated %}
             {% if is_in_liked %}
-              <form method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
+              <form id="unlikeForm" class="ajax-unlike-form" method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
                 {% csrf_token %}
+                
                 <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img src="{% static 'CineValue/images/icons/heart_liked.svg' %}" 
+                  <img id="heart_liked" src="{% static 'CineValue/images/icons/heart_liked.svg' %}" 
                     width="32" height="32" alt="Remove from liked">
                     
                 </button>
               </form>
 
             {% else %}
-              <form method="post" action="{% url 'like' id=movie.id %}">
+              <form id="likeForm" class="ajax-like-form" method="post" action="{% url 'like' id=movie.id %}">
                 {% csrf_token %}
+                <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
                 <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" 
+                  <img id="heart_not_liked" src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" 
                     width="32" height="32" alt="Add to liked">
-                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
                 </button>
               </form>
             {% endif %}
@@ -265,6 +266,7 @@
 </div>
 
 <script>
+
 function getCsrfToken() {
   const cookies = document.cookie.split(';');
   for (let cookie of cookies) {
@@ -274,6 +276,20 @@ function getCsrfToken() {
   return '';
 }
 
+function showNotification(message, type) {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show position-fixed';
+  alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+  alertDiv.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+  `;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 3000);
+}
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('#ratingForm');
   const modal = document.getElementById('ratingModal');
@@ -287,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
       btn.addEventListener('click', function() {
         const ratingValue = this.getAttribute('data-rating');
         
-        console.log('=== CLIENT DEBUG ===');
+        console.log('CLIENT DEBUG');
         console.log('Rating:', ratingValue);
         console.log('Image:', form.querySelector('input[name="image"]').value);
         console.log('CSRF:', getCsrfToken());
@@ -351,20 +367,95 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  function showNotification(message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
-    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-    alertDiv.innerHTML = `
-      ${message}
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(alertDiv);
+  
+});
+</script>
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Унифицированный обработчик для like/unlike
+  function handleLikeToggle(formElement) {
+    if (!formElement) return;
     
-    setTimeout(() => {
-      alertDiv.remove();
-    }, 3000);
+    const submitBtn = formElement.querySelector('button[type="submit"]');
+    const icon = formElement.querySelector('img');
+    
+    formElement.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (submitBtn) submitBtn.disabled = true;
+      
+      const formData = new FormData(formElement);
+      
+      fetch(formElement.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(t => { 
+            throw new Error(`HTTP ${response.status}: ${t}`); 
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.success) {
+          // Определяем текущее состояние по ID формы
+          const isCurrentlyLiked = formElement.id === 'unlikeForm';
+          
+          if (isCurrentlyLiked) {
+            // Был liked → делаем not liked
+            icon.src = "{% static 'CineValue/images/icons/heart_not_liked.svg' %}";
+            icon.alt = "Not liked";
+            icon.id = 'heart_not_liked';
+            
+            formElement.id = 'likeForm';
+            formElement.action = "{% url 'like' id=movie.id %}";
+            
+            // Убедимся что есть input image
+            if (!formElement.querySelector('input[name="image"]')) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'image';
+              input.value = "{{ data_whatson.image|default_if_none:'' }}";
+              formElement.appendChild(input);
+            }
+          } else {
+            // Был not liked → делаем liked
+            icon.src = "{% static 'CineValue/images/icons/heart_liked.svg' %}";
+            icon.alt = "Liked";
+            icon.id = 'heart_liked';
+            
+            formElement.id = 'unlikeForm';
+            formElement.action = "{% url 'remove_liked_movie' id=movie.id %}";
+          }
+          
+          showNotification(data.message, 'success');
+        } else {
+          showNotification((data && data.error) || 'Failed to toggle like', 'error');
+        }
+      })
+      .catch(error => {
+        showNotification('Failed to toggle like: ' + error.message, 'error');
+      })
+      .finally(() => {
+        if (submitBtn) submitBtn.disabled = false;
+      });
+    });
   }
+
+
+  handleLikeToggle(document.getElementById('likeForm'));
+  handleLikeToggle(document.getElementById('unlikeForm'));
 });
 </script>
 
