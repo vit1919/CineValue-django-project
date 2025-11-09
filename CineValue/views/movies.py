@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from ..models import Liked, Movie, Rating, WatchList
-from ..api_services import get_kp_api, get_whatson_api
+from ..api_services import get_kp_api, get_whatson_api, soundtrack
 
 
 def index(request):
@@ -29,14 +29,14 @@ def search_result(request, id):
 
     data_whatson = get_whatson_api(request, tmdb_id)
     if isinstance(data_whatson, dict) and 'error' in data_whatson:
-        return HttpResponseServerError(data_whatson['error'])
+        data_whatson = None
 
     budget_m = round(movie.budget / 1_000_000) if movie.budget else 0
     revenue_m = round(movie.revenue / 1_000_000) if movie.revenue else 0
 
     kp = get_kp_api(request, tmdb_id)
     if isinstance(kp, dict) and 'error' in kp:
-        return HttpResponseServerError(kp['error'])
+        kp = None
 
     if request.user.is_authenticated:
         is_in_watchlist = WatchList.objects.filter(
@@ -58,6 +58,8 @@ def search_result(request, id):
         is_in_liked = False
         is_rated = False
 
+    soundtrack_url = soundtrack(request, movie.title)
+
     context = {
         'movie': movie,
         'data_whatson': data_whatson,
@@ -67,9 +69,12 @@ def search_result(request, id):
         'is_in_watchlist': is_in_watchlist,
         'is_in_liked': is_in_liked,
         'is_rated': is_rated,
+        'soundtrack_url': soundtrack_url,
         'rating_range': range(1, 11),
     }
     return render(request, 'result.html', context)
+
+
 
 def search_result_real(request):
 

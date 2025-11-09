@@ -116,14 +116,17 @@
               <span>Rated: {{ rating.rated_at|date:"d M Y" }}</span>
               <span class="rating-badge">{{ rating.rating }}/10</span>
             </div>
+            
             <div class="rating-actions">
               <a href="{% url 'search_result' id=rating.movie.id %}">Update rating</a>
+              
               <form method="post" action="{% url 'remove_rating' id=rating.movie.id %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger w-100" style="background:#da3633; border:1px solid #f85149;">
                   Remove
                 </button>
               </form>
+
             </div>
           </div>
         </div>

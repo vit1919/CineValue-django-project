@@ -24,10 +24,10 @@ urlpatterns = [
     path('search/<int:id>/remove_liked_movie', views.remove_liked_movie, name='remove_liked_movie'),
 
     path('search/<int:id>/rate_movie', views.rate_movie, name='rate_movie'),
-    path('users_ratings', views.users_ratings, name='users_ratings'),
+    path('users_ratings/', views.users_ratings, name='users_ratings'),
     path('users_ratings/<int:id>/remove_rating', views.remove_rating, name='remove_rating'),
     
-    path('search_result_real', views.search_result_real, name='search_result_real'),
+    path('search_result_real/', views.search_result_real, name='search_result_real'),
 
 
     
