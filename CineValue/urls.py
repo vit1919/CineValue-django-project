@@ -18,6 +18,8 @@ urlpatterns = [
     path('watchlist/<int:id>/remove_watchlist_movie', views.remove_watchlist_movie, name='remove_watchlist_movie'),
 
     path('top250_tmdb/', views.top250_tmdb, name='top250_tmdb'),
+    path('top250_imdb/', views.top250_imdb, name='imdb250'),
+    
     path('search/<int:id>/remove_watchlist_movie_inresult', views.remove_watchlist_movie_inresult, name='remove_watchlist_movie_inresult'),
 
     path('search/<int:id>/like', views.like_ajax, name='like'),
@@ -28,6 +30,7 @@ urlpatterns = [
     path('users_ratings/<int:id>/remove_rating', views.remove_rating, name='remove_rating'),
     
     path('search_result_real/', views.search_result_real, name='search_result_real'),
+    
 
 
     

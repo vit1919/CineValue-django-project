@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.http import HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
-from ..models import Liked, Movie, Rating, WatchList
+from ..models import IMDb250, Liked, Movie, Rating, WatchList
 from ..api_services import get_kp_api, get_whatson_api, soundtrack
 
 
@@ -91,6 +91,9 @@ def search_result_real(request):
     return render(request, 'real_result.html', {'search_results': movies})
 
   
+def top250_imdb(request):
+    top250 = IMDb250.objects.all().order_by('rank')
+    return render(request, 'imdb250.html', {'top250': top250})
 
 
 

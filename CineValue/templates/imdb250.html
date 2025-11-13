@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}
+    IMDb Top 250 | CineValue
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .imdb250-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: #0d1117;
+        min-height: 100vh;
+    }
+
+    .imdb250-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+        border-bottom: 2px solid #30363d;
+    }
+
+    .imdb250-header h1 {
+        color: #f0b90b;
+        font-size: 2.5rem;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .imdb250-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 2rem;
+        padding: 1rem 0;
+    }
+
+    .movie-card {
+        background: #161b22;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        cursor: pointer;
+        border: 1px solid #30363d;
+    }
+
+    .movie-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 24px rgba(240, 185, 11, 0.3);
+        border-color: #f0b90b;
+    }
+
+    .movie-rank {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(240, 185, 11, 0.95);
+        color: #0d1117;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .movie-poster-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 150%; /* 2:3 aspect ratio */
+        overflow: hidden;
+        background: #21262d;
+    }
+
+    .movie-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover .movie-poster {
+        transform: scale(1.05);
+    }
+
+    .no-poster {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #21262d 0%, #161b22 100%);
+        color: #8b949e;
+        font-size: 3rem;
+    }
+
+    .movie-info {
+        padding: 1rem;
+        background: #161b22;
+    }
+
+    .movie-title {
+        color: #e6edf3;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .movie-card:hover .movie-title {
+        color: #f0b90b;
+    }
+
+    .movie-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .movie-rating {
+        color: #f0b90b;
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .movie-year {
+        color: #8b949e;
+        font-size: 0.9rem;
+    }
+
+    .movie-duration {
+        color: #8b949e;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+        .imdb250-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .imdb250-header h1 {
+            font-size: 2rem;
+        }
+
+        .movie-rank {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.6rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="imdb250-container">
+  <div class="imdb250-header">
+    <h1>🏆 IMDb Top 250 Movies</h1>
+  </div>
+  
+  <div class="imdb250-grid">
+    {% for movie in top250 %}
+      <div class="movie-card">
+        <div class="movie-rank">#{{ movie.rank }}</div>
+        
+        <div class="movie-poster-wrapper">
+          {% if movie.image_url %}
+            <img src="{{ movie.image_url }}" alt="{{ movie.title }}" class="movie-poster" loading="lazy">
+          {% else %}
+            <div class="no-poster">🎬</div>
+          {% endif %}
+        </div>
+
+        <div class="movie-info">
+          <h3 class="movie-title">{{ movie.title }}</h3>
+          
+          <div class="movie-meta">
+            <div class="movie-rating">
+              <span>⭐</span>
+              <span>{{ movie.rating }}</span>
+            </div>
+            
+            {% if movie.year %}
+              <div class="movie-year">{{ movie.year }}</div>
+            {% endif %}
+          </div>
+
+          {% if movie.duration %}
+            <div class="movie-duration">{{ movie.duration }}</div>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p style="color: #8b949e; text-align: center; grid-column: 1 / -1;">No movies found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
