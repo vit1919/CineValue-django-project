@@ -18,7 +18,7 @@ class Movie(models.Model):
     
     adult = models.BooleanField(default=False)
     budget = models.BigIntegerField(null=True, blank=True)
-    revenue = models.IntegerField(null=True, blank=True)
+    revenue = models.BigIntegerField(null=True, blank=True)
 
     genres = models.CharField(max_length=500, blank=True)
 

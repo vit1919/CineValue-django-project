@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError, JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from ..models import IMDb250, Liked, Movie, Rating, WatchList
-from ..api_services import get_kp_api, get_whatson_api, soundtrack
+from ..api_services import get_kinopoisk_data, get_whatson_data, get_soundtrack_url
 
 
 def index(request):
@@ -27,38 +27,71 @@ def search_result(request, id):
     movie = get_object_or_404(Movie, id=id)
     tmdb_id = movie.tmdb_id
 
-    data_whatson = get_whatson_api(request, tmdb_id)
+    data_whatson = get_whatson_data(tmdb_id)
     if isinstance(data_whatson, dict) and 'error' in data_whatson:
         data_whatson = None
 
     budget_m = round(movie.budget / 1_000_000) if movie.budget else 0
     revenue_m = round(movie.revenue / 1_000_000) if movie.revenue else 0
 
-    kp = get_kp_api(request, tmdb_id)
+    kp = get_kinopoisk_data(tmdb_id)
     if isinstance(kp, dict) and 'error' in kp:
         kp = None
 
-    if request.user.is_authenticated:
-        is_in_watchlist = WatchList.objects.filter(
-            user=request.user,
-            movie=movie,
-        ).exists()
-        
-        is_in_liked = Liked.objects.filter(
-            user=request.user,
-            movie=movie,
-        ).exists()
+    service_count=0
+    rating_count=0
 
-        is_rated = Rating.objects.filter(
-            user=request.user,
-            movie=movie,
-        ).exists()
+    if data_whatson:
+
+        kp_rating = kp.get('rating', {}).get('kp', '–')
+        if kp_rating != '–' and kp_rating != 0:
+            service_count += 1
+            rating_count += kp_rating
+        
+        
+        imdb_rating = (data_whatson.get('imdb') or {}).get('users_rating', '–')
+        if imdb_rating != '–':
+            service_count += 1
+            rating_count += imdb_rating
+
+        rt_rating_critics = (data_whatson.get('rotten_tomatoes') or {}).get('critics_rating', '–')
+        if rt_rating_critics != '–':
+            service_count += 1
+            rating_count += rt_rating_critics / 10
+
+        metacritic_rating = (data_whatson.get('metacritic') or {}).get('critics_rating', '–')
+        if metacritic_rating != '–':
+            service_count += 1
+            rating_count += metacritic_rating / 10
+
+        letterboxd_rating = (data_whatson.get('letterboxd') or {}).get('users_rating', '–')
+        if letterboxd_rating != '–':
+            service_count += 1
+            rating_count += letterboxd_rating * 2
+
+        average_rating = round(rating_count / service_count, 1) if service_count > 0 else '–'
+    else:
+        average_rating = None
+
+    if request.user.is_authenticated:
+        is_in_watchlist = (
+            request.user.is_authenticated and 
+            WatchList.objects.filter(user=request.user, movie=movie).exists()
+        )
+        is_in_liked = (
+            request.user.is_authenticated and 
+            Liked.objects.filter(user=request.user, movie=movie).exists()
+        )
+        is_rated = (
+            request.user.is_authenticated and 
+            Rating.objects.filter(user=request.user, movie=movie).exists()
+        )
     else:
         is_in_watchlist = False
         is_in_liked = False
         is_rated = False
 
-    soundtrack_url = soundtrack(request, movie.title)
+    soundtrack_url = get_soundtrack_url(movie.title)
 
     context = {
         'movie': movie,
@@ -71,6 +104,7 @@ def search_result(request, id):
         'is_rated': is_rated,
         'soundtrack_url': soundtrack_url,
         'rating_range': range(1, 11),
+        'average_rating': average_rating,
     }
     return render(request, 'result.html', context)
 
