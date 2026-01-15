@@ -184,7 +184,9 @@
         
         <div class="movie-poster-wrapper">
           {% if movie.image_url %}
+          <a href="{% url 'search_result' movie.id %}">
             <img src="{{ movie.image_url }}" alt="{{ movie.title }}" class="movie-poster" loading="lazy">
+          </a>
           {% else %}
             <div class="no-poster">🎬</div>
           {% endif %}
@@ -204,9 +206,6 @@
             {% endif %}
           </div>
 
-          {% if movie.duration %}
-            <div class="movie-duration">{{ movie.duration }}</div>
-          {% endif %}
         </div>
       </div>
     {% empty %}
