@@ -7,7 +7,13 @@ from ..api_services import get_kinopoisk_data, get_whatson_data, get_soundtrack_
 
 
 def index(request):
-    return render(request, 'index.html')
+
+    top_movies = (
+        Movie.objects.filter(vote_count__gte=1000)
+        .order_by('-vote_average')[:40]
+    )
+
+    return render(request, 'index.html', {'top_movies': top_movies})
 
 
 def search(request):
@@ -93,6 +99,11 @@ def search_result(request, id):
 
     soundtrack_url = get_soundtrack_url(movie.title)
 
+    # Parse genres from movie model as fallback
+    movie_genres = []
+    if movie.genres:
+        movie_genres = [g.strip() for g in movie.genres.split(',') if g.strip()]
+
     context = {
         'movie': movie,
         'data_whatson': data_whatson,
@@ -105,6 +116,7 @@ def search_result(request, id):
         'soundtrack_url': soundtrack_url,
         'rating_range': range(1, 11),
         'average_rating': average_rating,
+        'movie_genres': movie_genres,
     }
     return render(request, 'result.html', context)
 
@@ -137,3 +149,4 @@ def top250_tmdb(request):
         .order_by('-vote_average')[:250]
     )
     return render(request, 'top250_tmdb.html', {'top250': top250})
+

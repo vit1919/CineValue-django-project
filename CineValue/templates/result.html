@@ -4,264 +4,443 @@
 {% block title %}{{ movie.title }} | CineValue{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CineValue/style.css' %}">
 <style>
+  /* Hero Backdrop */
+  .hero-backdrop {
+    position: relative;
+    min-height: 100vh;
+  }
+  .hero-backdrop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    {% if movie.backdrop_path %}
+    background-image: url('https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}');
+    {% else %}
+    background-image: url('{{ data_whatson.image|default_if_none:"" }}');
+    {% endif %}
+    background-size: cover;
+    background-position: center top;
+    opacity: 0.35;
+    z-index: 0;
+  }
+  .hero-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, 
+      rgba(10, 10, 10, 0.2) 0%,
+      rgba(10, 10, 10, 0.6) 30%,
+      rgba(10, 10, 10, 0.95) 80%
+    );
+    z-index: 1;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
 
-  body { background: #0d1117 !important; }
-  main.container { max-width: none !important; padding: 0 !important; }
+  /* Poster */
+  .poster-wrapper {
+    position: relative;
+  }
+  .poster-card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.5),
+      0 0 100px rgba(124, 58, 237, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .poster-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Action Buttons */
+  .actions-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .action-btn:hover {
+    background: rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
+  }
+  .action-btn img {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Rating Blocks */
+  .ratings-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 1024px) {
+    .ratings-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .ratings-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .rating-block {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .rating-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .rating-block:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .rating-block .source {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+  }
+  .rating-block .score {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .rating-block .sub {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    margin-top: 0.5rem;
+  }
+
+  /* Rating Colors */
+  .rating-imdb::before { background: linear-gradient(90deg, #f5c518, #deb522); }
+  .rating-imdb .score { color: #f5c518; }
   
-  .rating-imdb { background: #deb522; color: #000; }
-  .rating-letterboxd { background: #00e054; color: #000; }
-  .rating-rt { background: #a94242; color: #fff; }
-  .rating-kp { background: #ff6600; color: #fff; }
-  .rating-meta { background: #6c757d; color: #fff; }
+  .rating-letterboxd::before { background: linear-gradient(90deg, #00e054, #40bcf4); }
+  .rating-letterboxd .score { color: #00e054; }
+  
+  .rating-rt::before { background: linear-gradient(90deg, #fa320a, #ff6347); }
+  .rating-rt .score { color: #fa320a; }
+  
+  .rating-kp::before { background: linear-gradient(90deg, #ff6600, #ff8533); }
+  .rating-kp .score { color: #ff6600; }
+  
+  .rating-meta::before { background: linear-gradient(90deg, #ffcc34, #66cc33); }
+  .rating-meta .score { color: #ffcc34; }
+
+  /* Stats Row */
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-item .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 4px;
+  }
+  .stat-item .stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  /* Service Links */
+  .links-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .service-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  .service-link svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+  }
+
+  /* Genre Tags */
+  .genre-tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    color: #c4b5fd;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: rgba(20, 20, 25, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+  }
+  .rating-btn {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a78bfa;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .rating-btn:hover {
+    background: rgba(167, 139, 250, 0.2);
+    border-color: rgba(167, 139, 250, 0.5);
+    transform: scale(1.1);
+    color: #fff;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="vh-100 d-flex flex-column" style="color: #e6edf3; background: #0d1117;">
-  <div class="flex-grow-1 p-4">
-    <div class="row g-4 h-100">
+<div class="hero-backdrop">
+  <div class="hero-content px-4 py-10 md:px-8 lg:px-16">
+    <div class="max-w-7xl mx-auto">
       
-      <div class="col-12 col-md-3">
-        <!-- Постер -->
-        <div class="d-flex align-items-start mb-3">
-          <img
-            src="{{ data_whatson.image|default_if_none:'' }}"
-            alt="{{ data_whatson.title|default:movie.title }}"
-            class="img-fluid rounded shadow-lg"
-            style="background:#161b22; border:1px solid #30363d; max-height: 600px; width: 100%;"
-          >
-        </div>
-
-        <!-- bookmark   trailer -->
-        <div class="d-flex gap-3 align-items-center">
-          {% if user.is_authenticated %}
-            {% if is_in_watchlist %}
-              <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
-                {% csrf_token %}
-                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" 
-                    width="32" height="32" alt="Remove from watchlist">
-                </button>
-              </form>
-            {% else %}
-              <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
-                {% csrf_token %}
-                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" 
-                    width="32" height="32" alt="Add to watchlist">
-                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-                </button>
-              </form>
-            {% endif %}
-          {% endif %}
-
-          <!-- Лайки -->
-          {% if user.is_authenticated %}
-            {% if is_in_liked %}
-              <form id="unlikeForm" class="ajax-unlike-form" method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
-                {% csrf_token %}
-                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img id="heart_liked" src="{% static 'CineValue/images/icons/heart_liked.svg' %}" 
-                    width="32" height="32" alt="Remove from liked">
-                </button>
-              </form>
-            {% else %}
-              <form id="likeForm" class="ajax-like-form" method="post" action="{% url 'like' id=movie.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-                <button type="submit" style="border: none; background: none; cursor: pointer; padding: 0;">
-                  <img id="heart_not_liked" src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" 
-                    width="32" height="32" alt="Add to liked">
-                </button>
-              </form>
-            {% endif %}
-          {% endif %}
-
-          <!-- Rating -->
-          {% if user.is_authenticated %}
-            <button type="submit" data-bs-toggle="modal" data-bs-target="#ratingModal" style="border: none; background: none; cursor: pointer; padding: 0;">
-              <img src="{% static 'CineValue/images/icons/' %}{% if is_rated %}rated.svg{% else %}unrated.svg{% endif %}" 
-                width="32" height="32" alt="{% if is_rated %}Rated{% else %}Rate{% endif %}">
-              <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-            </button>
-
-            <!-- Модальное окно для оценки -->
-            <div class="modal fade" id="ratingModal" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="background: #161b22; color: #e6edf3; border: 1px solid #30363d;">
-                  <div class="modal-header" style="border-bottom: 1px solid #30363d;">
-                    <h5 class="modal-title">Rate</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <form method="post" action="{% url 'rate_movie' id=movie.id %}" id="ratingForm">
-                      {% csrf_token %}
-                      <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-                      <div class="text-center mb-3">
-                        <h4 style="color: #58a6ff;">{{ movie.title }}</h4>
-                      </div>
-                      <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
-                        {% for i in rating_range %}
-                          <button 
-                            type="button"
-                            class="btn rating-btn"
-                            data-rating="{{ i }}"
-                            style="
-                              background: #21262d;
-                              color: #deb522;
-                              border: 1px solid #30363d;
-                              font-weight: 700;
-                              border-radius: 8px;
-                              width: 40px;
-                              height: 40px;
-                            "
-                          >
-                            {{ i }}
-                          </button>
-                        {% endfor %}
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+        
+        <!-- Left: Poster -->
+        <div class="lg:col-span-4">
+          <div class="poster-wrapper lg:sticky lg:top-24">
+            <div class="poster-card">
+              <img
+                src="{{ data_whatson.image|default_if_none:'' }}"
+                alt="{{ movie.title }}"
+              >
             </div>
+            
+            <!-- Actions under poster -->
+            <div class="actions-row justify-center mt-6">
+              {% if user.is_authenticated %}
+                {% if is_in_watchlist %}
+                  <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn" title="Remove from watchlist">
+                      <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" alt="Bookmarked">
+                    </button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                    <button type="submit" class="action-btn" title="Add to watchlist">
+                      <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" alt="Bookmark">
+                    </button>
+                  </form>
+                {% endif %}
 
-            <!-- Soundtrack -->
-            {% if soundtrack_url %}
-              <a href="{{ soundtrack_url }}" target="_blank" rel="noopener noreferrer" 
-                 style="display: inline-block; text-decoration: none;">
-                <img src="{% static 'CineValue/images/icons/soundtrack.svg' %}" 
-                  width="32" height="32" alt="Listen to soundtrack"
-                  title="Listen to soundtrack on YouTube">
-              </a>
-            {% endif %}
+                {% if is_in_liked %}
+                  <form id="unlikeForm" method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="action-btn" title="Unlike">
+                      <img id="heart_liked" src="{% static 'CineValue/images/icons/heart_liked.svg' %}" alt="Liked">
+                    </button>
+                  </form>
+                {% else %}
+                  <form id="likeForm" method="post" action="{% url 'like' id=movie.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                    <button type="submit" class="action-btn" title="Like">
+                      <img id="heart_not_liked" src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" alt="Like">
+                    </button>
+                  </form>
+                {% endif %}
 
-            <!-- Trailer -->
-            {% if data_whatson.trailer %}
-              <a href="{{ data_whatson.trailer }}" target="_blank" rel="noopener noreferrer">
-                <img src="{% static 'CineValue/images/icons/trailer.svg' %}" 
-                  width="32" height="32" alt="Watch trailer">
-              </a>
-            {% endif %}
-          {% endif %}
+                <button type="button" id="openRatingModal" class="action-btn" title="Rate">
+                  <img src="{% static 'CineValue/images/icons/' %}{% if is_rated %}rated.svg{% else %}unrated.svg{% endif %}" alt="Rate">
+                </button>
+
+                {% if soundtrack_url %}
+                  <a href="{{ soundtrack_url }}" target="_blank" class="action-btn" title="Soundtrack">
+                    <img src="{% static 'CineValue/images/icons/soundtrack.svg' %}" alt="Soundtrack">
+                  </a>
+                {% endif %}
+
+                {% if data_whatson.trailer %}
+                  <a href="{{ data_whatson.trailer }}" target="_blank" class="action-btn" title="Trailer">
+                    <img src="{% static 'CineValue/images/icons/trailer.svg' %}" alt="Trailer">
+                  </a>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
         </div>
 
-      </div>
-
-      
-      <div class="col-12 col-md-9">
-        <div class="h-100 d-flex flex-column">
+        <!-- Right: Info -->
+        <div class="lg:col-span-8">
           
-          
-          <div class="mb-3">
-            <h1 class="h2 mb-3">{{ movie.title }} ({{ movie.year }}) {{ average_rating|default:"–" }}</h1>
-            {% if movie.title != movie.original_title %}
-              <p class="text-muted mb-3 fs-5">{{ movie.original_title }}</p>
-            {% endif %}
+          <!-- Title & Year -->
+          <div class="mb-8">
+            <div class="flex items-center gap-4 mb-3">
+              <h1 class="text-4xl md:text-5xl font-bold text-white leading-tight">
+                {{ movie.title }}
+              </h1>
+              {% if average_rating and average_rating != '–' %}
+                <div class="flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-xl">
+                  <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                  <span class="text-2xl font-bold text-purple-300">{{ average_rating }}</span>
+                </div>
+              {% endif %}
+            </div>
+            <div class="flex items-center gap-4 text-gray-400 text-lg">
+              <span>{{ movie.year }}</span>
+              {% if movie.title != movie.original_title %}
+                <span class="text-gray-600">•</span>
+                <span class="text-gray-500">{{ movie.original_title }}</span>
+              {% endif %}
+            </div>
+          </div>
 
-            <!-- {% if data_whatson.directors %}
-              <p class="mb-0">
-                <strong>Directors:</strong>
-                {% if data_whatson.directors %}
-                  {{ data_whatson.directors|join:", " }}
-                {% else %}
-                  N/A
-                {% endif %}
-              </p>
-            {% endif %}
-          </div> -->
 
-          
-          <div class="mb-3">
-            <p class="mb-2" style="white-space:pre-line; line-height: 1.6; font-size: 1.1rem;">
+
+          <!-- Overview -->
+          <div class="mb-10">
+            <p class="text-gray-300 text-lg leading-relaxed">
               {{ movie.overview|default:"No overview available" }}
             </p>
-            
-            
-            <p class="mb-0">
-              <strong>Genres:</strong>
-              {% if data_whatson.genres %}
-                {{ data_whatson.genres|join:", " }}
-              {% else %}
-                N/A
-              {% endif %}
-            </p>
           </div>
 
-
-          <div class="mb-3">
-            <div class="row g-2">
-              <!-- IMDb -->
-              <div class="col-6 col-sm-4 col-lg-2">
-                <div class="text-center p-3 rounded rating-imdb">
-                   <a href="{{ data_whatson.imdb.url}}" style="text-decoration: none; color: inherit;">
-                    <div class="fw-bold small">IMDb</div>
-                  </a>
-                  <div class="fs-4 fw-bold">{{ data_whatson.imdb.users_rating|default:"–" }}</div>
-                </div>
+          <!-- Ratings -->
+          <div class="mb-10">
+            <h3 class="text-xs uppercase tracking-widest text-gray-500 mb-4">Ratings</h3>
+            <div class="ratings-grid">
+              <div class="rating-block rating-imdb">
+                <div class="source">IMDb</div>
+                <div class="score">{{ data_whatson.imdb.users_rating|default:"–" }}</div>
               </div>
-
-              <!-- Letterboxd -->
-               <!-- <a href={{ data_whatson.letterboxd.url}}></a> -->
-              <div class="col-6 col-sm-4 col-lg-2">
-                <div class="text-center p-3 rounded rating-letterboxd">
-                  <a href="{{ data_whatson.letterboxd.url}}" style="text-decoration: none; color: inherit;">
-                    <div class="fw-bold small">Letterboxd</div>
-                  </a>
-                  <div class="fs-4 fw-bold">{{ data_whatson.letterboxd.users_rating|default:"–" }}</div>
-                </div>
+              <div class="rating-block rating-letterboxd">
+                <div class="source">Letterboxd</div>
+                <div class="score">{{ data_whatson.letterboxd.users_rating|default:"–" }}</div>
               </div>
+              <div class="rating-block rating-rt">
+                <div class="source">RT</div>
+                <div class="score">{{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</div>
 
-              <!-- Rotten Tomatoes -->
-              <div class="col-6 col-sm-4 col-lg-2">
-                <div class="text-center p-2 rounded rating-rt">
-                  <a href="{{ data_whatson.rotten_tomatoes.url}}" style="text-decoration: none; color: inherit;">
-                    <div class="fw-bold small">Rotten Tomatoes</div>
-                  </a>
-                  <div class="small">Critics: <strong>{{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</strong></div>
-                  <div class="small">Users: <strong>{{ data_whatson.rotten_tomatoes.users_rating|default:"–" }}</strong></div>
-                </div>
               </div>
-
-              <!-- Kinopoisk -->
-              <div class="col-6 col-sm-4 col-lg-2">
-                <div class="text-center p-3 rounded rating-kp">
-                  <div class="fw-bold small">Kinopoisk</div>
-                  <div class="fs-4 fw-bold">{{ kp.rating.kp|default:"–" }}</div>
-                </div>
+              <div class="rating-block rating-kp">
+                <div class="source">Kinopoisk</div>
+                <div class="score">{{ kp.rating.kp|default:"–" }}</div>
               </div>
+              <div class="rating-block rating-meta">
+                <div class="source">Metacritic</div>
+                <div class="score">{{ data_whatson.metacritic.critics_rating|default:"–" }}</div>
 
-              <!-- Metacritic -->
-              <div class="col-6 col-sm-4 col-lg-2">
-                <div class="text-center p-2 rounded rating-meta">
-                  <a href="{{ data_whatson.metacritic.url}}" style="text-decoration: none; color: inherit;">
-                    <div class="fw-bold small">Metacritic</div>
-                  </a>
-
-                  <div class="small">Critics: <strong>{{ data_whatson.metacritic.critics_rating|default:"–" }}</strong></div>
-                  <div class="small">Users: <strong>{{ data_whatson.metacritic.users_rating|default:"–" }}</strong></div>
-                </div>
               </div>
             </div>
           </div>
 
-          
-          <div class="mt-3">
-            <div class="row g-3">
-              <div class="col-auto">
-                <div class="p-3 rounded text-center" style="background:#161b22; border:1px solid #30363d; min-width: 120px;">
-                  <div class="small text-muted mb-1">Budget</div>
-                  <div class="fw-bold h5 mb-0">${{ budget_m|default:"N/A" }}M</div>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="p-3 rounded text-center" style="background:#161b22; border:1px solid #30363d; min-width: 120px;">
-                  <div class="small text-muted mb-1">Revenue</div>
-                  <div class="fw-bold h5 mb-0">${{ revenue_m|default:"N/A" }}M</div>
-                </div>
-              </div>
+
+
+          <!-- External Links -->
+          <div>
+
+            <div class="links-row">
+              {% if data_whatson.imdb.url %}
+                <a href="{{ data_whatson.imdb.url }}" target="_blank" class="service-link">
+                  IMDb
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if data_whatson.letterboxd.url %}
+                <a href="{{ data_whatson.letterboxd.url }}" target="_blank" class="service-link">
+                  Letterboxd
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if data_whatson.rotten_tomatoes.url %}
+                <a href="{{ data_whatson.rotten_tomatoes.url }}" target="_blank" class="service-link">
+                  Rotten Tomatoes
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                  </svg>
+                </a>
+              {% endif %}
+              {% if data_whatson.metacritic.url %}
+                <a href="{{ data_whatson.metacritic.url }}" target="_blank" class="service-link">
+                  Metacritic
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                  </svg>
+                </a>
+              {% endif %}
             </div>
           </div>
 
@@ -271,197 +450,121 @@
   </div>
 </div>
 
-<script>
+<!-- Rating Modal -->
+{% if user.is_authenticated %}
+<div class="modal-overlay" id="ratingModal">
+  <div class="modal-box">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-semibold text-white">Rate this movie</h3>
+      <button id="closeRatingModal" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+    </div>
+    <p class="text-purple-400 text-center mb-6 font-medium text-lg">{{ movie.title }}</p>
+    <form method="post" action="{% url 'rate_movie' id=movie.id %}" id="ratingForm">
+      {% csrf_token %}
+      <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+      <div class="flex justify-center gap-2 flex-wrap">
+        {% for i in rating_range %}
+          <button type="button" class="rating-btn" data-rating="{{ i }}">{{ i }}</button>
+        {% endfor %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
 
+<script>
 function getCsrfToken() {
   const cookies = document.cookie.split(';');
-  for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'csrftoken') return value;
+  for (let c of cookies) {
+    const [n, v] = c.trim().split('=');
+    if (n === 'csrftoken') return v;
   }
   return '';
 }
 
-function showNotification(message, type) {
-  const alertDiv = document.createElement('div');
-  alertDiv.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show position-fixed';
-  alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-  alertDiv.innerHTML = `
-    ${message}
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-  `;
-  document.body.appendChild(alertDiv);
-  setTimeout(() => alertDiv.remove(), 3000);
+function showNotification(msg, type) {
+  const d = document.createElement('div');
+  d.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-xl text-white font-medium shadow-2xl ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+  d.textContent = msg;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3000);
 }
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', function() {
-  const form = document.querySelector('#ratingForm');
   const modal = document.getElementById('ratingModal');
-  const ratingIcon = document.querySelector('button[data-bs-target="#ratingModal"] img');
-  
+  const openBtn = document.getElementById('openRatingModal');
+  const closeBtn = document.getElementById('closeRatingModal');
+
+  if (openBtn && modal) {
+    openBtn.addEventListener('click', () => modal.classList.add('open'));
+    closeBtn?.addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+  }
+
+  const form = document.getElementById('ratingForm');
   if (form) {
-    // Добавляем обработчик на все кнопки рейтинга
-    const ratingButtons = form.querySelectorAll('.rating-btn');
-    
-    ratingButtons.forEach(btn => {
+    form.querySelectorAll('.rating-btn').forEach(btn => {
       btn.addEventListener('click', function() {
-        const ratingValue = this.getAttribute('data-rating');
-        
-        console.log('CLIENT DEBUG');
-        console.log('Rating:', ratingValue);
-        console.log('Image:', form.querySelector('input[name="image"]').value);
-        console.log('CSRF:', getCsrfToken());
-        
-        btn.disabled = true;
-        btn.style.opacity = '0.6';
-        
-        const formData = new FormData(form);
-        formData.set('rating', ratingValue); 
-        
-        console.log('FormData entries:');
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ': ' + pair[1]);
-        }
-        
+        const rating = this.dataset.rating;
+        const fd = new FormData(form);
+        fd.set('rating', rating);
         fetch(form.action, {
           method: 'POST',
-          headers: {
-            'X-CSRFToken': getCsrfToken(),
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          body: formData
+          headers: { 'X-CSRFToken': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+          body: fd
         })
-        .then(response => {
-          console.log('Response status:', response.status);
-          if (!response.ok) {
-            return response.text().then(text => {
-              throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-          }
-          return response.json();
-        })
-        .then(data => {  
-          console.log('Response data:', data);
+        .then(r => r.json())
+        .then(data => {
           if (data.success) {
-            if (ratingIcon) {
-              ratingIcon.src = "{% static 'CineValue/images/icons/rated.svg' %}";
-              ratingIcon.alt = "Rated: " + ratingValue;
-            }
-            
-            showNotification(data.message + ' Rating: ' + ratingValue, 'success');
-            
-            const modalInstance = bootstrap.Modal.getInstance(modal);
-            if (modalInstance) {
-              modalInstance.hide();
-            }
-          } else if (data.error) {
-            showNotification(data.error, 'error');
-          }
+            const icon = document.querySelector('#openRatingModal img');
+            if (icon) icon.src = "{% static 'CineValue/images/icons/rated.svg' %}";
+            showNotification('Rated: ' + rating + '/10', 'success');
+            modal.classList.remove('open');
+          } else showNotification(data.error || 'Failed', 'error');
         })
-        .catch(error => {
-          console.error('Error:', error);
-          showNotification('Failed to save rating: ' + error.message, 'error');
-        })
-        .finally(() => {
-          btn.disabled = false;
-          btn.style.opacity = '1';
-        });
+        .catch(err => showNotification('Error: ' + err.message, 'error'));
       });
     });
   }
-  
-  
-});
-</script>
 
-
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Унифицированный обработчик для like/unlike
-  function handleLikeToggle(formElement) {
-    if (!formElement) return;
-    
-    const submitBtn = formElement.querySelector('button[type="submit"]');
-    const icon = formElement.querySelector('img');
-    
-    formElement.addEventListener('submit', function(e) {
+  function handleLikeToggle(f) {
+    if (!f) return;
+    f.addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      if (submitBtn) submitBtn.disabled = true;
-      
-      const formData = new FormData(formElement);
-      
-      fetch(formElement.action, {
+      const icon = f.querySelector('img');
+      const fd = new FormData(f);
+      fetch(f.action, {
         method: 'POST',
-        headers: {
-          'X-CSRFToken': getCsrfToken(),
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
+        headers: { 'X-CSRFToken': getCsrfToken(), 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
       })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(t => { 
-            throw new Error(`HTTP ${response.status}: ${t}`); 
-          });
-        }
-        return response.json();
-      })
+      .then(r => r.json())
       .then(data => {
-        if (data && data.success) {
-          // Определяем текущее состояние по ID формы
-          const isCurrentlyLiked = formElement.id === 'unlikeForm';
-          
-          if (isCurrentlyLiked) {
-            // Был liked → делаем not liked
+        if (data.success) {
+          const liked = f.id === 'unlikeForm';
+          if (liked) {
             icon.src = "{% static 'CineValue/images/icons/heart_not_liked.svg' %}";
-            icon.alt = "Not liked";
-            icon.id = 'heart_not_liked';
-            
-            formElement.id = 'likeForm';
-            formElement.action = "{% url 'like' id=movie.id %}";
-            
-            // Убедимся что есть input image
-            if (!formElement.querySelector('input[name="image"]')) {
-              const input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = 'image';
-              input.value = "{{ data_whatson.image|default_if_none:'' }}";
-              formElement.appendChild(input);
+            f.id = 'likeForm';
+            f.action = "{% url 'like' id=movie.id %}";
+            if (!f.querySelector('input[name="image"]')) {
+              const inp = document.createElement('input');
+              inp.type = 'hidden'; inp.name = 'image';
+              inp.value = "{{ data_whatson.image|default_if_none:'' }}";
+              f.appendChild(inp);
             }
           } else {
-            // Был not liked → делаем liked
             icon.src = "{% static 'CineValue/images/icons/heart_liked.svg' %}";
-            icon.alt = "Liked";
-            icon.id = 'heart_liked';
-            
-            formElement.id = 'unlikeForm';
-            formElement.action = "{% url 'remove_liked_movie' id=movie.id %}";
+            f.id = 'unlikeForm';
+            f.action = "{% url 'remove_liked_movie' id=movie.id %}";
           }
-          
           showNotification(data.message, 'success');
-        } else {
-          showNotification((data && data.error) || 'Failed to toggle like', 'error');
         }
       })
-      .catch(error => {
-        showNotification('Failed to toggle like: ' + error.message, 'error');
-      })
-      .finally(() => {
-        if (submitBtn) submitBtn.disabled = false;
-      });
+      .catch(err => showNotification('Error: ' + err.message, 'error'));
     });
   }
-
-
   handleLikeToggle(document.getElementById('likeForm'));
   handleLikeToggle(document.getElementById('unlikeForm'));
 });
 </script>
-
 {% endblock %}

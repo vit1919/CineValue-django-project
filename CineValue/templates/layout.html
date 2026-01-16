@@ -1,97 +1,167 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru" data-bs-theme="dark">
+<html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}CineValue{% endblock %}</title>
 
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-    crossorigin="anonymous"
-  />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: #0a0a0a; min-height: 100vh; }
+
+    /* Cinematic Glow Background */
+    .glow-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.35;
+    }
+    .blob-purple {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+      top: -200px; left: -150px;
+      animation: float-slow 20s ease-in-out infinite;
+    }
+    .blob-blue {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+      top: 30%; right: -100px;
+      animation: float-slow 25s ease-in-out infinite reverse;
+    }
+    .blob-cyan {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+      bottom: -100px; left: 30%;
+      animation: float-slow 22s ease-in-out infinite;
+    }
+    @keyframes float-slow {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    /* Glass Navbar */
+    .glass-nav {
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .nav-link {
+      color: rgba(255, 255, 255, 0.7);
+      transition: color 0.2s ease;
+    }
+    .nav-link:hover {
+      color: #fff;
+    }
+    .nav-link-active {
+      color: #a78bfa;
+    }
+
+    /* Mobile menu */
+    .mobile-menu { display: none; }
+    .mobile-menu.open { display: flex; }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 
-<body style="background: #0d1117;">
-  
-  <nav class="navbar navbar-expand-lg sticky-top" style="background:#161b22; border-bottom:1px solid #30363d;">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-semibold" href="{% url 'index' %}" style="color:#e6edf3;">CineValue</a>
+<body class="text-gray-200">
+  <!-- Cinematic Glow Background -->
+  <div class="glow-bg">
+    <div class="glow-blob blob-purple"></div>
+    <div class="glow-blob blob-blue"></div>
+    <div class="glow-blob blob-cyan"></div>
+  </div>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation"
-              style="border-color:#30363d;">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="mainNav">
-        <!-- li -->
-        <ul class="navbar-nav gap-3">
-          <li class="nav-item">
-            <a class="nav-link" style="color:#e6edf3;" href="{% url 'index' %}">Home</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" style="color:#e6edf3;" href="{% url 'watchlist' %}">Watchlist</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" style="color:#e6edf3;" href="{% url 'users_ratings' %}">Ratings</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" style="color:#e6edf3;" href="{% url 'top250_tmdb' %}">TMDB 250</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" style="color:#e6edf3;" href="{% url 'imdb250' %}">IMDb 250</a>
-          </li>
-
-
-
-        </ul>
-
+  <!-- Glass Navbar -->
+  <nav class="glass-nav sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
         
-        <ul class="navbar-nav ms-auto gap-3">
+        <!-- Logo -->
+        <a href="{% url 'index' %}" class="text-xl font-bold bg-gradient-to-r from-purple-400 via-violet-400 to-blue-400 bg-clip-text text-transparent">
+          CineValue
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="{% url 'index' %}" class="nav-link text-sm font-medium">Home</a>
+          <a href="{% url 'watchlist' %}" class="nav-link text-sm font-medium">Watchlist</a>
+          <a href="{% url 'users_ratings' %}" class="nav-link text-sm font-medium">Ratings</a>
+          <a href="{% url 'top250_tmdb' %}" class="nav-link text-sm font-medium">TMDB 250</a>
+          <a href="{% url 'imdb250' %}" class="nav-link text-sm font-medium">IMDb 250</a>
+        </div>
+
+        <!-- Auth -->
+        <div class="hidden md:flex items-center gap-4">
           {% if user.is_authenticated %}
-            <li class="nav-item">
-              <span class="navbar-text" style="color:#e6edf3;">{{ user.username }}</span>
-            </li>
-            <li class="nav-item">
-              <form action="{% url 'logout' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="nav-link btn btn-link p-0" style="color:#e6edf3; text-decoration:none;">
-                  Log out
-                </button>
-              </form>
-            </li>
+            <span class="text-sm text-gray-400">{{ user.username }}</span>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                Log out
+              </button>
+            </form>
           {% else %}
-            <li class="nav-item">
-              <a class="nav-link" style="color:#e6edf3;" href="{% url 'login' %}">Log in</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" style="color:#e6edf3;" href="{% url 'signup' %}">Sign up</a>
-            </li>
+            <a href="{% url 'login' %}" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Log in</a>
+            <a href="{% url 'signup' %}" class="text-sm font-medium px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white transition-colors">Sign up</a>
           {% endif %}
-        </ul>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="mobile-menu flex-col gap-2 pb-4 md:hidden">
+        <a href="{% url 'index' %}" class="nav-link py-2 text-sm font-medium">Home</a>
+        <a href="{% url 'watchlist' %}" class="nav-link py-2 text-sm font-medium">Watchlist</a>
+        <a href="{% url 'users_ratings' %}" class="nav-link py-2 text-sm font-medium">Ratings</a>
+        <a href="{% url 'top250_tmdb' %}" class="nav-link py-2 text-sm font-medium">TMDB 250</a>
+        <a href="{% url 'imdb250' %}" class="nav-link py-2 text-sm font-medium">IMDb 250</a>
+        <div class="border-t border-white/10 mt-2 pt-2 flex flex-col gap-2">
+          {% if user.is_authenticated %}
+            <span class="text-sm text-gray-400">{{ user.username }}</span>
+            <form action="{% url 'logout' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="text-sm text-gray-400 hover:text-white">Log out</button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}" class="text-sm text-gray-400 hover:text-white">Log in</a>
+            <a href="{% url 'signup' %}" class="text-sm text-purple-400 hover:text-purple-300">Sign up</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>
 
-
-  <!-- Контент без container для полного экрана -->
-  <main>
+  <!-- Main Content -->
+  <main class="relative z-10">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-          crossorigin="anonymous"></script>
+  <script>
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+      document.getElementById('mobile-menu')?.classList.toggle('open');
+    });
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
