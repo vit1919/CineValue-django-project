@@ -14,11 +14,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    {% if movie.backdrop_path %}
-    background-image: url('https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}');
-    {% else %}
-    background-image: url('{{ data_whatson.image|default_if_none:"" }}');
-    {% endif %}
+    background-image: var(--backdrop-url);
     background-size: cover;
     background-position: center top;
     opacity: 0.35;
@@ -265,7 +261,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="hero-backdrop">
+<div class="hero-backdrop" style="--backdrop-url: url('');">
   <div class="hero-content px-4 py-10 md:px-8 lg:px-16">
     <div class="max-w-7xl mx-auto">
       
@@ -473,6 +469,28 @@
 {% endif %}
 
 <script>
+// Backdrop fallback
+(function() {
+  const backdrop = document.querySelector('.hero-backdrop');
+  const backdropUrl = '{{ backdrop_url|escapejs }}';
+  const posterUrl = '{{ data_whatson.image|default_if_none:""|escapejs }}';
+  
+  if (backdropUrl) {
+    const img = new Image();
+    img.onload = function() {
+      backdrop.style.setProperty('--backdrop-url', "url('" + backdropUrl + "')");
+    };
+    img.onerror = function() {
+      if (posterUrl) {
+        backdrop.style.setProperty('--backdrop-url', "url('" + posterUrl + "')");
+      }
+    };
+    img.src = backdropUrl;
+  } else if (posterUrl) {
+    backdrop.style.setProperty('--backdrop-url', "url('" + posterUrl + "')");
+  }
+})();
+
 function getCsrfToken() {
   const cookies = document.cookie.split(';');
   for (let c of cookies) {

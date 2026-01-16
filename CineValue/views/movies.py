@@ -99,6 +99,14 @@ def search_result(request, id):
 
     soundtrack_url = get_soundtrack_url(movie.title)
 
+    # Backdrop URL: prefer movie.backdrop_path, fallback to poster from whatson
+    if movie.backdrop_path:
+        backdrop_url = f'https://image.tmdb.org/t/p/original{movie.backdrop_path}'
+    elif data_whatson and data_whatson.get('image'):
+        backdrop_url = data_whatson.get('image')
+    else:
+        backdrop_url = ''
+
     # Parse genres from movie model as fallback
     movie_genres = []
     if movie.genres:
@@ -117,6 +125,7 @@ def search_result(request, id):
         'rating_range': range(1, 11),
         'average_rating': average_rating,
         'movie_genres': movie_genres,
+        'backdrop_url': backdrop_url,
     }
     return render(request, 'result.html', context)
 
