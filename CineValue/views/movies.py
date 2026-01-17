@@ -30,6 +30,7 @@ def search(request):
 
 
 def search_result(request, id):
+
     movie = get_object_or_404(Movie, id=id)
     tmdb_id = movie.tmdb_id
 
@@ -37,8 +38,8 @@ def search_result(request, id):
     if isinstance(data_whatson, dict) and 'error' in data_whatson:
         data_whatson = None
 
-    budget_m = round(movie.budget / 1_000_000) if movie.budget else 0
-    revenue_m = round(movie.revenue / 1_000_000) if movie.revenue else 0
+    # budget_m = round(movie.budget / 1_000_000) if movie.budget else 0
+    # revenue_m = round(movie.revenue / 1_000_000) if movie.revenue else 0
 
     kp = get_kinopoisk_data(tmdb_id)
     if isinstance(kp, dict) and 'error' in kp:
@@ -47,14 +48,15 @@ def search_result(request, id):
     service_count=0
     rating_count=0
 
-    if data_whatson:
-
+    if kp is not None:
         kp_rating = kp.get('rating', {}).get('kp', '–')
         if kp_rating != '–' and kp_rating != 0:
             service_count += 1
             rating_count += kp_rating
         
-        
+
+    if data_whatson:
+
         imdb_rating = (data_whatson.get('imdb') or {}).get('users_rating', '–')
         if imdb_rating != '–':
             service_count += 1
@@ -81,15 +83,12 @@ def search_result(request, id):
 
     if request.user.is_authenticated:
         is_in_watchlist = (
-            request.user.is_authenticated and 
             WatchList.objects.filter(user=request.user, movie=movie).exists()
         )
         is_in_liked = (
-            request.user.is_authenticated and 
             Liked.objects.filter(user=request.user, movie=movie).exists()
         )
         is_rated = (
-            request.user.is_authenticated and 
             Rating.objects.filter(user=request.user, movie=movie).exists()
         )
     else:
@@ -99,7 +98,7 @@ def search_result(request, id):
 
     soundtrack_url = get_soundtrack_url(movie.title)
 
-    # Backdrop URL: prefer movie.backdrop_path, fallback to poster from whatson
+    
     if movie.backdrop_path:
         backdrop_url = f'https://image.tmdb.org/t/p/original{movie.backdrop_path}'
     elif data_whatson and data_whatson.get('image'):
@@ -107,7 +106,7 @@ def search_result(request, id):
     else:
         backdrop_url = ''
 
-    # Parse genres from movie model as fallback
+
     movie_genres = []
     if movie.genres:
         movie_genres = [g.strip() for g in movie.genres.split(',') if g.strip()]
@@ -116,8 +115,6 @@ def search_result(request, id):
         'movie': movie,
         'data_whatson': data_whatson,
         'kp': kp,
-        'budget_m': budget_m,
-        'revenue_m': revenue_m,
         'is_in_watchlist': is_in_watchlist,
         'is_in_liked': is_in_liked,
         'is_rated': is_rated,
@@ -147,15 +144,18 @@ def search_result_real(request):
 
   
 def top250_imdb(request):
+
     top250 = IMDb250.objects.all().order_by('rank')
     return render(request, 'imdb250.html', {'top250': top250})
 
 
 
 def top250_tmdb(request):
+
     top250 = (
         Movie.objects.filter(vote_count__gte=1000)
         .order_by('-vote_average')[:250]
     )
+    
     return render(request, 'top250_tmdb.html', {'top250': top250})
 
