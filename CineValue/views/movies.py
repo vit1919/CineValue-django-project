@@ -1,9 +1,10 @@
-from django.db.models import Q
-from django.http import HttpResponseServerError, JsonResponse
+import asyncio
+from asgiref.sync import sync_to_async
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from ..utils.movie_utils import count_avg_rating, check_user_movie_status, get_backdrop_url 
-from ..models import IMDb250, Liked, Movie, Rating, WatchList
-from ..api_services import get_kinopoisk_data, get_whatson_data, get_soundtrack_url
+from ..api_services import get_kinopoisk_data_async, get_whatson_data_async, get_soundtrack_url_async
+from ..utils.movie_utils import count_avg_rating, check_user_movie_status, get_backdrop_url
+from ..models import IMDb250, Movie
 
 
 def index(request):
@@ -25,22 +26,27 @@ def search(request):
     return JsonResponse(movies, safe=False)
 
 
-def search_result(request, id):
+async def search_result(request, id):
 
-    movie = get_object_or_404(Movie, id=id)
+    movie = await sync_to_async(get_object_or_404)(Movie, id=id)
     tmdb_id = movie.tmdb_id
 
-    data_whatson = get_whatson_data(tmdb_id)
+
+    data_task = get_whatson_data_async(tmdb_id)
+    kp_task = get_kinopoisk_data_async(tmdb_id)
+    soundtrack_task = get_soundtrack_url_async(movie.title)
+
+    data_whatson, kp, soundtrack_url = await asyncio.gather(
+        data_task, kp_task, soundtrack_task
+    )
+
     if isinstance(data_whatson, dict) and 'error' in data_whatson:
         data_whatson = None
-
-    kp = get_kinopoisk_data(tmdb_id)
     if isinstance(kp, dict) and 'error' in kp:
         kp = None
 
     average_rating = count_avg_rating(kp, data_whatson)
-    user_status = check_user_movie_status(request.user, movie)
-    soundtrack_url = get_soundtrack_url(movie.title)
+    user_status = await sync_to_async(check_user_movie_status)(request.user, movie)
     backdrop_url = get_backdrop_url(movie, data_whatson)
 
     movie_genres = []

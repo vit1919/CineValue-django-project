@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from ytmusicapi import YTMusic
 
@@ -28,3 +29,6 @@ def get_soundtrack_url(movie_name: str) -> Optional[str]:
     
     print(f"[YT] Найден плейлист для '{movie_name}': {youtube_url}")
     return youtube_url
+
+async def get_soundtrack_url_async(movie_name):
+    return await asyncio.to_thread(get_soundtrack_url, movie_name)
