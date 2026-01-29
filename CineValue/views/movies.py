@@ -8,6 +8,7 @@ from ..utils.movie_utils import count_avg_rating, check_user_movie_status, get_b
 from ..models import IMDb250, Movie
 from django_ratelimit.decorators import ratelimit
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from django.shortcuts import redirect
 
 
 @ratelimit(key='ip', rate='20/m', block=True)
@@ -103,6 +104,13 @@ def search_result_real(request):
 
 @ratelimit(key='ip', rate='30/m', block=True)
 def top250_imdb(request):
+
+    movie_title = request.GET.get('q')
+    if movie_title is not None:
+        movie = Movie.objects.filter(title=movie_title).first()
+        if movie:
+            return redirect('search_result', id=movie.id)
+
 
     top250 = IMDb250.objects.all().order_by('rank')
     return render(request, 'imdb250.html', {'top250': top250})

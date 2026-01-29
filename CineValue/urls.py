@@ -30,6 +30,8 @@ urlpatterns = [
     path('search/<int:id>/rate_movie', views.rate_movie, name='rate_movie'),
     path('users_ratings/', views.users_ratings, name='users_ratings'),
     path('users_ratings/<int:id>/remove_rating', views.remove_rating, name='remove_rating'),
+
+
     
     
     
