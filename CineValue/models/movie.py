@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 
 class Movie(models.Model):
@@ -41,4 +43,11 @@ class Movie(models.Model):
             models.Index(fields=["-vote_average"]),
             models.Index(fields=["vote_count"]),
             models.Index(fields=["tmdb_id"]),
+
+            GinIndex(
+                SearchVector('title', config='english'),
+                name='movie_title_ftx_inx'
+            )
+
+
         ]

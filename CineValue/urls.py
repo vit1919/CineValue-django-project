@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('search/', views.search, name='search'),
     path('search/<int:id>/', views.search_result, name='search_result'),
+    path('search_result_real/', views.search_result_real, name='search_result_real'),
 
     path('signup/', views.signup, name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
@@ -30,7 +31,7 @@ urlpatterns = [
     path('users_ratings/', views.users_ratings, name='users_ratings'),
     path('users_ratings/<int:id>/remove_rating', views.remove_rating, name='remove_rating'),
     
-    path('search_result_real/', views.search_result_real, name='search_result_real'),
+    
     
 
 

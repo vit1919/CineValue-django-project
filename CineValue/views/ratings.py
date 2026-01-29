@@ -4,10 +4,11 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-
+from django_ratelimit.decorators import ratelimit
 from ..models import Movie, Rating
 
 
+@ratelimit(key='ip', rate='30/m', block=True)
 @login_required
 @require_POST
 def rate_movie(request, id):
@@ -43,6 +44,7 @@ def rate_movie(request, id):
     })
 
 
+@ratelimit(key='ip', rate='60/m', block=True)
 @login_required
 def users_ratings(request):
     rated_movies = (
@@ -54,6 +56,7 @@ def users_ratings(request):
     return render(request, 'users_ratings.html', {'users_ratings': rated_movies})
 
 
+@ratelimit(key='ip', rate='60/m', block=True)
 @login_required
 @require_POST
 def remove_rating(request, id):
