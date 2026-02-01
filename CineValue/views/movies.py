@@ -17,11 +17,22 @@ def index(request):
     top_movies = (Movie.objects.filter(vote_count__gte=1000).order_by('-vote_average')[:40])
     return render(request, 'index.html', {'top_movies': top_movies})
 
+
+
 @ratelimit(key='ip', rate='100/m', block=True)
 def search(request):
     query = request.GET.get('q', '').strip()
     if not query or len(query) < 2:
         return JsonResponse([], safe=False)
+
+    movies_qs = (
+        Movie.objects.filter(title__istartswith=query)
+        .order_by('-popularity', 'title')[:10]
+    )
+
+    movies = list(movies_qs.values('id', 'title', 'year'))
+    return JsonResponse(movies, safe=False)
+
 
 
     # vector = SearchVector('title', config='english')
@@ -32,14 +43,6 @@ def search(request):
     #             ).filter(
     #                 rank__gte=0.1
     #             ).order_by('-rank')[:10]
-
-    movies_qs = (
-        Movie.objects.filter(title__istartswith=query)
-        .order_by('-popularity', 'title')[:10]
-    )
-
-    movies = list(movies_qs.values('id', 'title', 'year'))
-    return JsonResponse(movies, safe=False)
 
 
 
