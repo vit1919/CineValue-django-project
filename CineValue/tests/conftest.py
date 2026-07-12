@@ -88,3 +88,4 @@ def movies_list(db):
             popularity=100 - i * 10,
         ))
     return movies
+

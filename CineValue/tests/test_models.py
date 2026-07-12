@@ -32,3 +32,4 @@ def test_rating_item_creation(rating_item, user, movie):
     assert rating_item.movie == movie
     assert rating_item.rating == 9
     assert rating_item.image_url == 'https://example.com/poster.jpg'
+
