@@ -17,7 +17,7 @@
     background-image: var(--backdrop-url);
     background-size: cover;
     background-position: center top;
-    opacity: 0.35;
+    opacity: 0.15;
     z-index: 0;
   }
   .hero-backdrop::after {
@@ -25,9 +25,9 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom, 
-      rgba(10, 10, 10, 0.2) 0%,
-      rgba(10, 10, 10, 0.6) 30%,
-      rgba(10, 10, 10, 0.95) 80%
+      rgba(15, 15, 15, 0.3) 0%,
+      rgba(15, 15, 15, 0.85) 70%,
+      #0f0f0f 100%
     );
     z-index: 1;
   }
@@ -37,16 +37,10 @@
   }
 
   /* Poster */
-  .poster-wrapper {
-    position: relative;
-  }
   .poster-card {
-    border-radius: 20px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 
-      0 25px 50px rgba(0, 0, 0, 0.5),
-      0 0 100px rgba(124, 58, 237, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   }
   .poster-card img {
     width: 100%;
@@ -57,149 +51,92 @@
   /* Action Buttons */
   .actions-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
   }
   .action-btn {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 14px;
-    transition: all 0.25s ease;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 10px;
+    transition: all 0.2s ease;
     cursor: pointer;
   }
   .action-btn:hover {
-    background: rgba(124, 58, 237, 0.2);
-    border-color: rgba(124, 58, 237, 0.4);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
+    background: #222226;
+    border-color: #e87b35;
   }
   .action-btn img {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
   }
 
-  /* Rating Blocks */
-  .ratings-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-  }
-  @media (max-width: 1024px) {
-    .ratings-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 640px) {
-    .ratings-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  .rating-block {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 1.25rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-  .rating-block::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-  }
-  .rating-block:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-  .rating-block .source {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.75rem;
-    opacity: 0.6;
-  }
-  .rating-block .score {
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .rating-block .sub {
-    font-size: 0.75rem;
-    opacity: 0.5;
-    margin-top: 0.5rem;
-  }
-
-  /* Rating Colors */
-  .rating-imdb::before { background: linear-gradient(90deg, #f5c518, #deb522); }
-  .rating-imdb .score { color: #f5c518; }
-  
-  .rating-letterboxd::before { background: linear-gradient(90deg, #00e054, #40bcf4); }
-  .rating-letterboxd .score { color: #00e054; }
-  
-  .rating-rt::before { background: linear-gradient(90deg, #fa320a, #ff6347); }
-  .rating-rt .score { color: #fa320a; }
-  
-  .rating-kp::before { background: linear-gradient(90deg, #ff6600, #ff8533); }
-  .rating-kp .score { color: #ff6600; }
-  
-  .rating-meta::before { background: linear-gradient(90deg, #ffcc34, #66cc33); }
-  .rating-meta .score { color: #ffcc34; }
-
-  /* Stats Row */
-  .stats-row {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .stat-item {
+  /* Rating Rows */
+  .ratings-list {
     display: flex;
     flex-direction: column;
+    gap: 8px;
   }
-  .stat-item .stat-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.4);
-    margin-bottom: 4px;
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 8px;
+    transition: background 0.15s ease;
   }
-  .stat-item .stat-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #fff;
+  .rating-row:hover {
+    background: #222226;
+  }
+  .rating-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .rating-source {
+    font-size: 0.85rem;
+    color: #7a7a7e;
+    min-width: 100px;
+  }
+  .rating-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #e8e6e3;
+    margin-left: auto;
   }
 
   /* Service Links */
   .links-row {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
   }
   .service-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 10px 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 14px;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 6px;
+    color: #7a7a7e;
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
   }
   .service-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: #222226;
+    border-color: #e87b35;
+    color: #e8e6e3;
   }
   .service-link svg {
     width: 14px;
@@ -210,11 +147,11 @@
   /* Genre Tags */
   .genre-tag {
     display: inline-block;
-    padding: 6px 14px;
-    background: rgba(124, 58, 237, 0.15);
-    border: 1px solid rgba(124, 58, 237, 0.25);
-    border-radius: 20px;
-    color: #c4b5fd;
+    padding: 5px 12px;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 4px;
+    color: #7a7a7e;
     font-size: 0.8rem;
     font-weight: 500;
   }
@@ -223,8 +160,7 @@
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 100;
     display: none;
     align-items: center;
@@ -232,29 +168,28 @@
   }
   .modal-overlay.open { display: flex; }
   .modal-box {
-    background: rgba(20, 20, 25, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 12px;
     padding: 2rem;
     max-width: 420px;
     width: 90%;
   }
   .rating-btn {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #a78bfa;
+    width: 44px;
+    height: 44px;
+    background: #0f0f0f;
+    border: 1px solid #2c2c30;
+    color: #e87b35;
     font-weight: 700;
-    font-size: 1rem;
-    border-radius: 12px;
+    font-size: 0.95rem;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
   }
   .rating-btn:hover {
-    background: rgba(167, 139, 250, 0.2);
-    border-color: rgba(167, 139, 250, 0.5);
-    transform: scale(1.1);
+    background: #e87b35;
+    border-color: #e87b35;
     color: #fff;
   }
 </style>
@@ -264,197 +199,192 @@
 <div class="hero-backdrop" style="--backdrop-url: url('');">
   <div class="hero-content px-4 py-10 md:px-8 lg:px-16">
     <div class="max-w-7xl mx-auto">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
       
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-        
-        <!-- Left: Poster -->
-        <div class="lg:col-span-4">
-          <div class="poster-wrapper lg:sticky lg:top-24">
-            <div class="poster-card">
-              <img
-                src="{{ data_whatson.image|default_if_none:'' }}"
-                alt="{{ movie.title }}"
-              >
-            </div>
-            
-            <!-- Actions under poster -->
-            <div class="actions-row justify-center mt-6">
-              {% if user.is_authenticated %}
-                {% if is_in_watchlist %}
-                  <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="action-btn" title="Remove from watchlist">
-                      <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" alt="Bookmarked">
-                    </button>
-                  </form>
-                {% else %}
-                  <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-                    <button type="submit" class="action-btn" title="Add to watchlist">
-                      <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" alt="Bookmark">
-                    </button>
-                  </form>
-                {% endif %}
-
-                {% if is_in_liked %}
-                  <form id="unlikeForm" method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="action-btn" title="Unlike">
-                      <img id="heart_liked" src="{% static 'CineValue/images/icons/heart_liked.svg' %}" alt="Liked">
-                    </button>
-                  </form>
-                {% else %}
-                  <form id="likeForm" method="post" action="{% url 'like' id=movie.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
-                    <button type="submit" class="action-btn" title="Like">
-                      <img id="heart_not_liked" src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" alt="Like">
-                    </button>
-                  </form>
-                {% endif %}
-
-                <button type="button" id="openRatingModal" class="action-btn" title="Rate">
-                  <img src="{% static 'CineValue/images/icons/' %}{% if is_rated %}rated.svg{% else %}unrated.svg{% endif %}" alt="Rate">
-                </button>
-
-                {% if soundtrack_url %}
-                  <a href="{{ soundtrack_url }}" target="_blank" class="action-btn" title="Soundtrack">
-                    <img src="{% static 'CineValue/images/icons/soundtrack.svg' %}" alt="Soundtrack">
-                  </a>
-                {% endif %}
-
-                {% if data_whatson.trailer %}
-                  <a href="{{ data_whatson.trailer }}" target="_blank" class="action-btn" title="Trailer">
-                    <img src="{% static 'CineValue/images/icons/trailer.svg' %}" alt="Trailer">
-                  </a>
-                {% endif %}
-              {% endif %}
-            </div>
+      <!-- Left: Poster -->
+      <div class="lg:col-span-4">
+        <div class="lg:sticky lg:top-24">
+          <div class="poster-card">
+            <img
+              src="{{ data_whatson.image|default_if_none:'' }}"
+              alt="{{ movie.title }}"
+            >
           </div>
-        </div>
-
-        <!-- Right: Info -->
-        <div class="lg:col-span-8">
           
-          <!-- Title & Year -->
-          <div class="mb-8">
-            <div class="flex items-center gap-4 mb-3">
-              <h1 class="text-4xl md:text-5xl font-bold text-white leading-tight">
-                {{ movie.title }}
-              </h1>
-              {% if average_rating and average_rating != '–' %}
-                <div class="flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-xl">
-                  <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                  <span class="text-2xl font-bold text-purple-300">{{ average_rating }}</span>
-                </div>
+          <!-- Actions under poster -->
+          <div class="actions-row justify-center mt-6">
+            {% if user.is_authenticated %}
+              {% if is_in_watchlist %}
+                <form method="post" action="{% url 'remove_watchlist_movie_inresult' id=movie.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="action-btn" title="Remove from watchlist">
+                    <img src="{% static 'CineValue/images/icons/bookmarked.svg' %}" alt="Bookmarked">
+                  </button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'to_watchlist' id=movie.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                  <button type="submit" class="action-btn" title="Add to watchlist">
+                    <img src="{% static 'CineValue/images/icons/bookmark.svg' %}" alt="Bookmark">
+                  </button>
+                </form>
               {% endif %}
-            </div>
-            <div class="flex items-center gap-4 text-gray-400 text-lg">
-              <span>{{ movie.year }}</span>
-              {% if movie.title != movie.original_title %}
-                <span class="text-gray-600">•</span>
-                <span class="text-gray-500">{{ movie.original_title }}</span>
+
+              {% if is_in_liked %}
+                <form id="unlikeForm" method="post" action="{% url 'remove_liked_movie' id=movie.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="action-btn" title="Unlike">
+                    <img id="heart_liked" src="{% static 'CineValue/images/icons/heart_liked.svg' %}" alt="Liked">
+                  </button>
+                </form>
+              {% else %}
+                <form id="likeForm" method="post" action="{% url 'like' id=movie.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
+                  <button type="submit" class="action-btn" title="Like">
+                    <img id="heart_not_liked" src="{% static 'CineValue/images/icons/heart_not_liked.svg' %}" alt="Like">
+                  </button>
+                </form>
               {% endif %}
-            </div>
-          </div>
 
+              <button type="button" id="openRatingModal" class="action-btn" title="Rate">
+                <img src="{% static 'CineValue/images/icons/' %}{% if is_rated %}rated.svg{% else %}unrated.svg{% endif %}" alt="Rate">
+              </button>
 
-
-          <!-- Overview -->
-          <div class="mb-10">
-            <p class="text-gray-300 text-lg leading-relaxed">
-              {{ movie.overview|default:"No overview available" }}
-            </p>
-          </div>
-
-          <!-- Ratings -->
-          <div class="mb-10">
-            <h3 class="text-xs uppercase tracking-widest text-gray-500 mb-4">Ratings</h3>
-            <div class="ratings-grid">
-              <div class="rating-block rating-imdb">
-                <div class="source">IMDb</div>
-                <div class="score">{{ data_whatson.imdb.users_rating|default:"–" }}</div>
-              </div>
-              <div class="rating-block rating-letterboxd">
-                <div class="source">Letterboxd</div>
-                <div class="score">{{ data_whatson.letterboxd.users_rating|default:"–" }}</div>
-              </div>
-              <div class="rating-block rating-rt">
-                <div class="source">RT</div>
-                <div class="score">{{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</div>
-
-              </div>
-              <div class="rating-block rating-kp">
-                <div class="source">Kinopoisk</div>
-                <div class="score">{{ kp.rating.kp|default:"–" }}</div>
-              </div>
-              <div class="rating-block rating-meta">
-                <div class="source">Metacritic</div>
-                <div class="score">{{ data_whatson.metacritic.critics_rating|default:"–" }}</div>
-
-              </div>
-            </div>
-          </div>
-
-
-
-          <!-- External Links -->
-          <div>
-
-            <div class="links-row">
-              {% if data_whatson.imdb.url %}
-                <a href="{{ data_whatson.imdb.url }}" target="_blank" class="service-link">
-                  IMDb
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
-                  </svg>
+              {% if soundtrack_url %}
+                <a href="{{ soundtrack_url }}" target="_blank" class="action-btn" title="Soundtrack">
+                  <img src="{% static 'CineValue/images/icons/soundtrack.svg' %}" alt="Soundtrack">
                 </a>
               {% endif %}
-              {% if data_whatson.letterboxd.url %}
-                <a href="{{ data_whatson.letterboxd.url }}" target="_blank" class="service-link">
-                  Letterboxd
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
-                  </svg>
-                </a>
-              {% endif %}
-              {% if data_whatson.rotten_tomatoes.url %}
-                <a href="{{ data_whatson.rotten_tomatoes.url }}" target="_blank" class="service-link">
-                  Rotten Tomatoes
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
-                  </svg>
-                </a>
-              {% endif %}
-              {% if data_whatson.metacritic.url %}
-                <a href="{{ data_whatson.metacritic.url }}" target="_blank" class="service-link">
-                  Metacritic
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
-                  </svg>
-                </a>
-              {% endif %}
-            </div>
-          </div>
 
+              {% if data_whatson.trailer %}
+                <a href="{{ data_whatson.trailer }}" target="_blank" class="action-btn" title="Trailer">
+                  <img src="{% static 'CineValue/images/icons/trailer.svg' %}" alt="Trailer">
+                </a>
+              {% endif %}
+            {% endif %}
+          </div>
         </div>
+      </div>
+
+      <!-- Right: Info -->
+      <div class="lg:col-span-8">
+        
+        <!-- Title & Year -->
+        <div class="mb-8">
+          <div class="flex items-center gap-4 mb-3">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#e8e6e3] leading-tight" style="font-family: 'Playfair Display', Georgia, serif;">
+              {{ movie.title }}
+            </h1>
+            {% if average_rating and average_rating != '–' %}
+              <div class="flex items-center gap-2 px-3 py-1.5 bg-[#e87b35]/10 border border-[#e87b35]/30 rounded-md">
+                <svg class="w-4 h-4 text-[#e87b35]" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                <span class="text-lg font-bold text-[#e87b35]" style="font-family: 'JetBrains Mono', monospace;">{{ average_rating }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <div class="flex items-center gap-4 text-[#7a7a7e] text-lg">
+            <span>{{ movie.year }}</span>
+            {% if movie.title != movie.original_title %}
+              <span class="text-[#2c2c30]">|</span>
+              <span class="text-[#7a7a7e]">{{ movie.original_title }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Overview -->
+        <div class="mb-10">
+          <p class="text-[#e8e6e3] text-lg leading-relaxed opacity-80">
+            {{ movie.overview|default:"No overview available" }}
+          </p>
+        </div>
+
+        <!-- Ratings -->
+        <div class="mb-10">
+          <h3 class="text-xs uppercase tracking-widest text-[#7a7a7e] mb-4 font-medium">Ratings</h3>
+          <div class="ratings-list">
+            <div class="rating-row">
+              <span class="rating-dot" style="background: #f5c518;"></span>
+              <span class="rating-source">IMDb</span>
+              <span class="rating-score">{{ data_whatson.imdb.users_rating|default:"–" }}</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-dot" style="background: #00e054;"></span>
+              <span class="rating-source">Letterboxd</span>
+              <span class="rating-score">{{ data_whatson.letterboxd.users_rating|default:"–" }}</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-dot" style="background: #fa320a;"></span>
+              <span class="rating-source">Rotten Tomatoes</span>
+              <span class="rating-score">{{ data_whatson.rotten_tomatoes.critics_rating|default:"–" }}</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-dot" style="background: #ff6600;"></span>
+              <span class="rating-source">Kinopoisk</span>
+              <span class="rating-score">{{ kp.rating.kp|default:"–" }}</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-dot" style="background: #ffcc34;"></span>
+              <span class="rating-source">Metacritic</span>
+              <span class="rating-score">{{ data_whatson.metacritic.critics_rating|default:"–" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- External Links -->
+        <div>
+          <div class="links-row">
+            {% if data_whatson.imdb.url %}
+              <a href="{{ data_whatson.imdb.url }}" target="_blank" class="service-link">
+                IMDb
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </a>
+            {% endif %}
+            {% if data_whatson.letterboxd.url %}
+              <a href="{{ data_whatson.letterboxd.url }}" target="_blank" class="service-link">
+                Letterboxd
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </a>
+            {% endif %}
+            {% if data_whatson.rotten_tomatoes.url %}
+              <a href="{{ data_whatson.rotten_tomatoes.url }}" target="_blank" class="service-link">
+                Rotten Tomatoes
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </a>
+            {% endif %}
+            {% if data_whatson.metacritic.url %}
+              <a href="{{ data_whatson.metacritic.url }}" target="_blank" class="service-link">
+                Metacritic
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </div>
-
-<!-- Rating Modal -->
 {% if user.is_authenticated %}
 <div class="modal-overlay" id="ratingModal">
   <div class="modal-box">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="text-xl font-semibold text-white">Rate this movie</h3>
-      <button id="closeRatingModal" class="text-gray-500 hover:text-white text-2xl leading-none">&times;</button>
+      <h3 class="text-xl font-semibold text-[#e8e6e3]">Rate this movie</h3>
+      <button id="closeRatingModal" class="text-[#7a7a7e] hover:text-[#e8e6e3] text-2xl leading-none">&times;</button>
     </div>
-    <p class="text-purple-400 text-center mb-6 font-medium text-lg">{{ movie.title }}</p>
+    <p class="text-[#e87b35] text-center mb-6 font-medium text-lg">{{ movie.title }}</p>
     <form method="post" action="{% url 'rate_movie' id=movie.id %}" id="ratingForm">
       {% csrf_token %}
       <input type="hidden" name="image" value="{{ data_whatson.image|default_if_none:'' }}">
@@ -469,7 +399,24 @@
 {% endif %}
 
 <script>
-// Backdrop fallback
+function getCsrfToken() {
+  const cookies = document.cookie.split(';');
+  for (let c of cookies) {
+    const [n, v] = c.trim().split('=');
+    if (n === 'csrftoken') return v;
+  }
+  return '';
+}
+
+function showNotification(msg, type) {
+  const d = document.createElement('div');
+  d.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg text-white font-medium shadow-lg ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+  d.textContent = msg;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3000);
+}
+
+// Backdrop loader
 (function() {
   const backdrop = document.querySelector('.hero-backdrop');
   const backdropUrl = '{{ backdrop_url|escapejs }}';
@@ -490,23 +437,6 @@
     backdrop.style.setProperty('--backdrop-url', "url('" + posterUrl + "')");
   }
 })();
-
-function getCsrfToken() {
-  const cookies = document.cookie.split(';');
-  for (let c of cookies) {
-    const [n, v] = c.trim().split('=');
-    if (n === 'csrftoken') return v;
-  }
-  return '';
-}
-
-function showNotification(msg, type) {
-  const d = document.createElement('div');
-  d.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-xl text-white font-medium shadow-2xl ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-  d.textContent = msg;
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 3000);
-}
 
 document.addEventListener('DOMContentLoaded', function() {
   const modal = document.getElementById('ratingModal');

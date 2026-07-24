@@ -44,7 +44,8 @@ class MovieDetailService:
         return [g.strip() for g in self.movie.genres.split(',') if g.strip()]
 
     async def _get_user_status(self):
-        if not self.user.is_authenticated:
+        is_authenticated = await sync_to_async(lambda: self.user.is_authenticated)()
+        if not is_authenticated:
             return {
                 'is_in_watchlist': False,
                 'is_in_liked': False,

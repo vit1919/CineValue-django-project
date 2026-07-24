@@ -47,10 +47,11 @@ def search(request):
 async def search_result(request, id):
     movie = await sync_to_async(get_object_or_404)(Movie, id=id)
 
-    context = await MovieDetailService(movie, request.user).execute()
+    user = await sync_to_async(lambda: request.user)()
+    context = await MovieDetailService(movie, user).execute()
     context['rating_range'] = range(1, 11)
 
-    return render(request, 'result.html', context)
+    return await sync_to_async(render)(request, 'result.html', context)
 
 
 @ratelimit(key='ip', rate='20/m', block=True)

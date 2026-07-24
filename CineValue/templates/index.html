@@ -7,126 +7,122 @@
 
 {% block extra_css %}
 <style>
-  /* Glassmorphism Search */
-  .glass-search {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.3s ease;
+  /* Search */
+  .search-wrap {
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
   }
-  .glass-search:focus-within {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(124, 58, 237, 0.5);
-    box-shadow: 0 0 40px rgba(124, 58, 237, 0.15);
+  .search-wrap:focus-within {
+    border-color: #e87b35;
   }
   .search-input {
     background: transparent;
     border: none;
     outline: none;
-    color: #e5e5e5;
-    font-size: 1.1rem;
+    color: #e8e6e3;
+    font-size: 1rem;
     width: 100%;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.25rem;
   }
   .search-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: #7a7a7e;
   }
 
   /* Results Dropdown */
   .results {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 4px);
     left: 0; right: 0;
-    background: rgba(15, 15, 15, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: #1a1a1e;
+    border: 1px solid #2c2c30;
+    border-radius: 8px;
     overflow: hidden;
     max-height: 400px;
     overflow-y: auto;
     z-index: 100;
     list-style: none;
     margin: 0;
-    padding: 8px;
+    padding: 4px;
   }
   .results:empty { display: none; }
   .results li a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 18px;
-    color: #d1d5db;
+    padding: 12px 16px;
+    color: #e8e6e3;
     text-decoration: none;
-    border-radius: 10px;
-    transition: all 0.2s ease;
+    border-radius: 6px;
+    transition: background 0.15s ease;
   }
   .results li a:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: #222226;
   }
   .results li a .movie-title { font-weight: 500; }
-  .results li a .movie-year { font-size: 0.875rem; color: rgba(255, 255, 255, 0.5); }
+  .results li a .movie-year { font-size: 0.85rem; color: #7a7a7e; font-family: 'JetBrains Mono', monospace; }
   .results::-webkit-scrollbar { width: 6px; }
-  .results::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+  .results::-webkit-scrollbar-thumb { background: #2c2c30; border-radius: 3px; }
 
-  /* Bento Grid */
-  .bento-grid {
+  /* Poster Grid */
+  .poster-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 16px;
   }
   @media (min-width: 768px) {
-    .bento-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+    .poster-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
   }
   @media (min-width: 1280px) {
-    .bento-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .poster-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   }
 
-  /* Movie Poster Card */
+  /* Poster Card */
   .poster-card {
     position: relative;
     aspect-ratio: 2/3;
-    border-radius: 16px;
+    border-radius: 6px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: block;
   }
   .poster-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(124, 58, 237, 0.15);
-    z-index: 10;
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(232, 123, 53, 0.3);
   }
   .poster-card img {
     width: 100%; height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: transform 0.3s ease;
   }
-  .poster-card:hover img { transform: scale(1.1); }
+  .poster-card:hover img {
+    transform: scale(1.05);
+  }
   .poster-placeholder {
     width: 100%; height: 100%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #1a1a1e;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .poster-placeholder svg { width: 48px; height: 48px; color: rgba(255, 255, 255, 0.2); }
+  .poster-placeholder svg { width: 48px; height: 48px; color: #2c2c30; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="min-h-screen px-4 py-12 md:px-8 lg:px-16">
   
-  
   <div class="max-w-4xl mx-auto text-center mb-16">
-    <p class="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
+    <p class="text-[#7a7a7e] text-lg mb-10 max-w-xl mx-auto">
       Explore ratings from IMDb, Letterboxd, Rotten Tomatoes, Kinopoisk, Metacritic and more all in one place.
     </p>
 
     <!-- Search Form -->
     <form action="{% url 'search_result_real' %}" method="get" role="search" class="relative max-w-2xl mx-auto">
-      <div class="glass-search rounded-2xl flex items-center">
-        <svg class="w-5 h-5 ml-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="search-wrap flex items-center">
+        <svg class="w-5 h-5 ml-5 text-[#7a7a7e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
         <input class="search-input" autocomplete="off" autofocus name="movie_name" placeholder="Search for any movie..." type="search" aria-label="Search movies">
@@ -135,9 +131,8 @@
     </form>
   </div>
 
-
   <div class="max-w-[1800px] mx-auto">
-    <div class="bento-grid">
+    <div class="poster-grid">
       {% for movie in top_movies %}
         <a href="{% url 'search_result' movie.id %}" class="poster-card">
           {% if movie.poster_path %}
