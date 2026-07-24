@@ -42,8 +42,7 @@ def count_avg_rating(kp, data_whatson):
 
 
 def round_to_M(amount):
-    round(amount / 1_000_000) if amount else 0
-    return amount
+    return round(amount / 1_000_000) if amount else 0
 
 
 def check_user_movie_status(user, movie):

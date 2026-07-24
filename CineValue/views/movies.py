@@ -1,13 +1,10 @@
-import asyncio
 from asgiref.sync import sync_to_async
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from CineValue.utils.async_rate_limit import async_ratelimit
-from ..api_services import get_kinopoisk_data_async, get_whatson_data_async, get_soundtrack_url_async
-from ..utils.movie_utils import count_avg_rating, check_user_movie_status, get_backdrop_url
+from ..services.movie_service import MovieDetailService
 from ..models import IMDb250, Movie
 from django_ratelimit.decorators import ratelimit
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.shortcuts import redirect
 
 
@@ -48,43 +45,11 @@ def search(request):
 
 @async_ratelimit(limit=20, period=60)
 async def search_result(request, id):
-
     movie = await sync_to_async(get_object_or_404)(Movie, id=id)
-    tmdb_id = movie.tmdb_id
 
+    context = await MovieDetailService(movie, request.user).execute()
+    context['rating_range'] = range(1, 11)
 
-    data_task = get_whatson_data_async(tmdb_id)
-    kp_task = get_kinopoisk_data_async(tmdb_id)
-    soundtrack_task = get_soundtrack_url_async(movie.title)
-
-    data_whatson, kp, soundtrack_url = await asyncio.gather(
-        data_task, kp_task, soundtrack_task
-    )
-
-    if isinstance(data_whatson, dict) and 'error' in data_whatson:
-        data_whatson = None
-    if isinstance(kp, dict) and 'error' in kp:
-        kp = None
-
-    average_rating = count_avg_rating(kp, data_whatson)
-    user_status = await sync_to_async(check_user_movie_status)(request.user, movie)
-    backdrop_url = get_backdrop_url(movie, data_whatson)
-
-    movie_genres = []
-    if movie.genres:
-        movie_genres = [g.strip() for g in movie.genres.split(',') if g.strip()]
-
-    context = {
-        'movie': movie,
-        'data_whatson': data_whatson,
-        'kp': kp,
-        **user_status,
-        'soundtrack_url': soundtrack_url,
-        'rating_range': range(1, 11),
-        'average_rating': average_rating,
-        'movie_genres': movie_genres,
-        'backdrop_url': backdrop_url,
-    }
     return render(request, 'result.html', context)
 
 
@@ -128,4 +93,3 @@ def top250_tmdb(request):
     )
 
     return render(request, 'top250_tmdb.html', {'top250': top250})
-

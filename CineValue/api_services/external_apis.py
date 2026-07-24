@@ -1,15 +1,16 @@
-from wsgiref import headers
+import logging
 import requests
 from django.conf import settings
 import httpx
 from .cache_utils import cache_api_response
 
+logger = logging.getLogger(__name__)
 
 @cache_api_response(key_prefix="kp_data", timeout=86400)
 async def get_kinopoisk_data_async(tmdb_id: int) -> dict:
     api_key = settings.KINOPOISK_API_KEY
     if not api_key:
-        return {'error': 'KINOPOISK_API_KEY не настроен в settings'}
+        return {'error': 'KINOPOISK_API_KEY is not configured in settings'}
 
     url = (
         f"https://api.kinopoisk.dev/v1.4/movie"
@@ -27,18 +28,18 @@ async def get_kinopoisk_data_async(tmdb_id: int) -> dict:
             response = await client.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-        
+
         docs = data.get("docs", [])
         if not docs:
-            print(f"[KP] Фильм с TMDB ID {tmdb_id} не найден")
-            return {'error': 'Фильм не найден в Kinopoisk'}
+            logger.warning("[KP] Movie with TMDB ID %s not found", tmdb_id)
+            return {'error': 'Movie not found in Kinopoisk'}
 
         return docs[0]
- 
+
     except httpx.TimeoutException:
-        return {'error': 'Превышено время ожидания ответа от Kinopoisk API'}
+        return {'error': 'Kinopoisk API timeout'}
     except httpx.RequestError as e:
-        return {'error': f'Ошибка запроса к Kinopoisk API: {str(e)}'}
+        return {'error': f'Kinopoisk API request error: {str(e)}'}
 
 
 @cache_api_response(key_prefix="whatson_data", timeout=86400)
@@ -54,12 +55,12 @@ async def get_whatson_data_async(tmdb_id: int) -> dict:
             response = await client.get(url)
             response.raise_for_status()
             data = response.json()
-        
+
         return data
 
     except httpx.TimeoutException:
-        return {'error': 'Превышено время ожидания ответа от WhatsOn API'}
+        return {'error': 'WhatsOn API timeout'}
     except httpx.RequestError as e:
-        return {'error': f'Ошибка запроса к WhatsOn API: {str(e)}'}
+        return {'error': f'WhatsOn API request error: {str(e)}'}
     except ValueError as e:
-        return {'error': f'Некорректный ответ от WhatsOn API: {str(e)}'}
+        return {'error': f'Invalid response from WhatsOn API: {str(e)}'}

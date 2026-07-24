@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django_ratelimit.decorators import ratelimit
 from ..models import Movie, Rating
+from ..utils.validators import validate_rating
 
 
 @ratelimit(key='ip', rate='30/m', block=True)
@@ -13,28 +14,16 @@ from ..models import Movie, Rating
 @require_POST
 def rate_movie(request, id):
     movie = get_object_or_404(Movie, id=id)
-    rating_str = request.POST.get('rating')
-
-    if not rating_str:
-        return JsonResponse({'error': 'Rating is required'}, status=400)
 
     try:
-        rating = int(rating_str)
-    except (TypeError, ValueError):
-        return JsonResponse({'error': 'Rating must be a number'}, status=400)
-
-    if not 1 <= rating <= 10:
-        return JsonResponse({'error': 'Rating must be between 1 and 10'}, status=400)
-
-    poster_url = request.POST.get('image') or None
+        rating = validate_rating(request.POST.get('rating'))
+    except ValueError as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
     rating_obj, created = Rating.objects.update_or_create(
         user=request.user,
         movie=movie,
-        defaults={
-            'rating': rating,
-            'image_url': poster_url,
-        },
+        defaults={'rating': rating, 'image_url': request.POST.get('image') or None},
     )
 
     return JsonResponse({

@@ -1,7 +1,10 @@
+import logging
 from functools import wraps
 from typing import Callable, Any
 import inspect
 from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
 
 
 def cache_api_response(key_prefix: str, timeout: int = 86400):
@@ -13,14 +16,14 @@ def cache_api_response(key_prefix: str, timeout: int = 86400):
                 cached_data = cache.get(cache_key)
 
                 if cached_data is not None:
-                    print(f"[CACHE HIT] {key_prefix} для TMDB ID: {tmdb_id}")
+                    logger.debug("[CACHE HIT] %s for TMDB ID: %s", key_prefix, tmdb_id)
                     return cached_data
 
-                print(f"[API REQUEST] {key_prefix} для TMDB ID: {tmdb_id}")
+                logger.info("[API REQUEST] %s for TMDB ID: %s", key_prefix, tmdb_id)
                 data = await func(tmdb_id, *args, **kwargs)
 
                 if data and isinstance(data, dict) and 'error' not in data:
-                    print(f"[CACHE SET] {key_prefix} для TMDB ID: {tmdb_id}")
+                    logger.debug("[CACHE SET] %s for TMDB ID: %s", key_prefix, tmdb_id)
                     cache.set(cache_key, data, timeout)
 
                 return data
@@ -33,14 +36,14 @@ def cache_api_response(key_prefix: str, timeout: int = 86400):
             cached_data = cache.get(cache_key)
 
             if cached_data is not None:
-                print(f"[CACHE HIT (взяли их кэша)] {key_prefix} для TMDB ID: {tmdb_id}")
+                logger.debug("[CACHE HIT] %s for TMDB ID: %s", key_prefix, tmdb_id)
                 return cached_data
 
-            print(f"[API REQUEST] {key_prefix} для TMDB ID: {tmdb_id}")
+            logger.info("[API REQUEST] %s for TMDB ID: %s", key_prefix, tmdb_id)
             data = func(tmdb_id, *args, **kwargs)
 
             if data and isinstance(data, dict) and 'error' not in data:
-                print(f"[CACHE SET (взяли их кэша)] {key_prefix} для TMDB ID: {tmdb_id}")
+                logger.debug("[CACHE SET] %s for TMDB ID: %s", key_prefix, tmdb_id)
                 cache.set(cache_key, data, timeout)
 
             return data
