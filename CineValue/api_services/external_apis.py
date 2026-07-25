@@ -58,6 +58,8 @@ async def get_whatson_data_async(tmdb_id: int) -> dict:
 
         return data
 
+    except httpx.HTTPStatusError as e:
+        return {'error': f'WhatsOn API status error: {e.response.status_code}'}
     except httpx.TimeoutException:
         return {'error': 'WhatsOn API timeout'}
     except httpx.RequestError as e:

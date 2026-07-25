@@ -14,23 +14,23 @@ def count_avg_rating(kp, data_whatson):
 
     if data_whatson:
 
-        imdb_rating = (data_whatson.get('imdb') or {}).get('users_rating', '–')
-        if imdb_rating != '–':
+        imdb_rating = (data_whatson.get('imdb') or {}).get('users_rating')
+        if imdb_rating not in (None, '–'):
             service_count += 1
             rating_count += imdb_rating
 
-        rt_rating_critics = (data_whatson.get('rotten_tomatoes') or {}).get('critics_rating', '–')
-        if rt_rating_critics != '–':
+        rt_rating_critics = (data_whatson.get('rotten_tomatoes') or {}).get('critics_rating')
+        if rt_rating_critics not in (None, '–'):
             service_count += 1
             rating_count += rt_rating_critics / 10
 
-        metacritic_rating = (data_whatson.get('metacritic') or {}).get('critics_rating', '–')
-        if metacritic_rating != '–':
+        metacritic_rating = (data_whatson.get('metacritic') or {}).get('critics_rating')
+        if metacritic_rating not in (None, '–'):
             service_count += 1
             rating_count += metacritic_rating / 10
 
-        letterboxd_rating = (data_whatson.get('letterboxd') or {}).get('users_rating', '–')
-        if letterboxd_rating != '–':
+        letterboxd_rating = (data_whatson.get('letterboxd') or {}).get('users_rating')
+        if letterboxd_rating not in (None, '–'):
             service_count += 1
             rating_count += letterboxd_rating * 2
 
