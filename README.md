@@ -85,13 +85,14 @@ Requests to external APIs are fetched asynchronously (`httpx`, `asyncio.gather`)
 - Python 3.10 or higher
 - PostgreSQL database
 - Node.js & npm (for Tailwind CSS build)
+- [TMDB Movies Dataset (Kaggle)](https://www.kaggle.com/datasets/asaniczka/tmdb-movies-dataset-2023-930k-movies) (CSV file)
 
 ### 2. Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/CineValue.git
-   cd CineValue
+   git clone https://github.com/vit1919/CineValue-django-project.git
+   cd CineValue-django-project
    ```
 
 2. **Set up a virtual environment**:
